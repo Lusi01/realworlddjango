@@ -58,7 +58,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'event', 'rate', 'created', 'updated']
     list_display_links = ['id', 'user', 'event', ]
     fields = [ 'user', 'event', 'rate', 'text', ('created', 'updated'), 'id']
-    readonly_fields = ['id', ]
+    readonly_fields = ['id', 'created', 'updated']
     list_filter = ['created', 'event',]
 
 

@@ -48,12 +48,14 @@ class Event(models.Model):
         return self.enrolls.count()
     display_enroll_count.short_description = 'Количество записей'
 
+
     def display_places_left(self):
-        dist = (self.participants_number - self.display_enroll_count())
+        #dist = (self.participants_number - self.display_enroll_count())
+        dist = (self.participants_number - self.enrolls.count())
         value = ''
         if dist == 0:
             value = str(dist) + ' (sold-out)'
-        elif dist <= (self.participants_number / 2):
+        elif dist <= (self.participants_number / 2) and dist != 0:
             value = str(dist) + ' (>50%)'
         elif dist > (self.participants_number / 2):
             value = str(dist) + ' (<=50%)'
