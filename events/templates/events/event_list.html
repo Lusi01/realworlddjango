@@ -1,0 +1,116 @@
+{% extends "__base.html" %}
+{% block title %}События{% endblock %}
+
+<!-- Start MAIN_CONTAINER -->
+{% block content %}
+
+    <!-- Start CONTAINER_BAR -->
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <form>
+                            <div class="row row-cols-lg-auto g-3 align-items-start">
+                                <div class="col-12">
+                                    <label for="category" class="form-label">Категория:</label>
+                                    <select class="form-select" id="category">
+                                        <option selected="">....................</option>
+                                        {% for cat in category %}
+                                            <option value={{ cat.id }}>{{ cat.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="features" class="form-label">Свойства:</label>
+                                    <select class="form-select" multiple="" id="features">
+                                        {% for feat in feature %}
+                                            <option value={{ feat.id }}>{{ feat.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12 d-md-flex">
+                                    <div class="mx-1">
+                                        <label for="id_date_start" class="form-label">Дата начала</label>
+                                        <input type="date" class="form-control" id="id_date_start">
+                                    </div>
+                                    <div class="mx-1">
+                                        <label for="id_date_end" class="form-label">Дата окончания</label>
+                                        <input type="date" class="form-control" id="id_date_end">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12 d-md-flex">
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="" id="is_private">
+                                        <label class="form-check-label" for="is_private">
+                                            Private
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="is_available">
+                                        <label class="form-check-label" for="is_available">
+                                            Есть места
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-primary">Фильтровать</button>
+                                    <button type="submit" class="btn btn-outline-danger">Сбросить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {#            <ul class="pagination">#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_start">&laquo;</a></li>#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_previous">Previous</a></li>#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_1">1</a></li>#}
+        {#                <li class="page-item active"><a class="page-link" href="#" data-test="p_2">2</a></li>#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_3">3</a></li>#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_next">Next</a></li>#}
+        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_end">&raquo;</a></li>#}
+        {#            </ul>#}
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4">
+            {% for event in event_objects %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ event.title }}</h5>
+                            <span data-test="is_private" class="badge bg-dark">{% if event.is_private %}Private
+                            {% endif %}</span>
+                        </div>
+                        <div class="card-body">
+                            <h3>{{ event.display_enroll_count }} из {{ event.participants_number }}</h3>
+                            <p>участников</p>
+                            <ul class="py-2">
+                                {% for el in event.features_list %}
+                                    <li>{{ el.title }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="text-black">
+                                дата: <strong
+                                    data-test="date_start">{{ event.date_start|date:"d.m.Y в H:i" }}</strong>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ event.get_absolute_url }}" class="btn btn-success">Смотреть</a>
+                            <a href="#" class="btn btn-outline-primary" title="Изменить">
+                                <i class="bi bi-pencil-square"></i>Изменить
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    <!-- End CONTAINER_BAR -->
+{% endblock %}
+<!-- End MAIN_CONTAINER -->
+

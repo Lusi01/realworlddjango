@@ -15,7 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+urlpatterns += [
+    path('events/', include('events.urls')),
+]
+
+urlpatterns += [
+    path('api/events/', include('events.urls_api')),
+]
+
+#Add Django site authentication urls (for login, logout, password management)
+urlpatterns += [
+    path('accounts/', include('django.contrib.auth.urls')),
+]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

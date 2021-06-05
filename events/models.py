@@ -1,5 +1,8 @@
 from django.db import models
+
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -36,6 +39,14 @@ class Event(models.Model):
     is_private = models.BooleanField(default=False, verbose_name='Частное')
     category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE, related_name='events')
     features = models.ManyToManyField(Feature, related_name='свойства')
+    logo = models.ImageField(upload_to='events/list', blank=True, null=True)
+
+    @property
+    def logo_url(self):
+        return self.logo.url if self.logo else f'{settings.STATIC_URL}images/svg-icon/event.svg'
+
+    def get_absolute_url(self):
+        return reverse('events:event_detail', args=[str(self.pk)])
 
     def __str__(self):
         return self.title
@@ -44,23 +55,34 @@ class Event(models.Model):
         verbose_name_plural = 'События'
         verbose_name = 'Событие'
 
+    @property
+    def rate(self):
+        query_set_ratings = self.reviews.values_list('rate', flat=True)
+        rates = sum(query_set_ratings) / query_set_ratings.count()
+        return round(rates, 1)
+    #rate.short_description = 'Средний рэйтинг'
+
+    @property
+    def features_list(self):
+        list = []
+        for el in self.features.get_queryset():
+            list.append(el.title)
+        return list
+
     def display_enroll_count(self):
         return self.enrolls.count()
     display_enroll_count.short_description = 'Количество записей'
 
-
     def display_places_left(self):
-        #dist = (self.participants_number - self.display_enroll_count())
-        dist = (self.participants_number - self.enrolls.count())
+        available = (self.participants_number - self.enrolls.count())
         value = ''
-        if dist == 0:
-            value = str(dist) + ' (sold-out)'
-        elif dist <= (self.participants_number / 2) and dist != 0:
-            value = str(dist) + ' (>50%)'
-        elif dist > (self.participants_number / 2):
-            value = str(dist) + ' (<=50%)'
+        if available == 0:
+            value = str(available) + ' (sold-out)'
+        elif available <= (self.participants_number / 2) and available != 0:
+            value = str(available) + ' (>50%)'
+        elif available > (self.participants_number / 2):
+            value = str(available) + ' (<= 50%)'
         return value
-
     display_places_left.short_description = 'Осталось мест'
 
 

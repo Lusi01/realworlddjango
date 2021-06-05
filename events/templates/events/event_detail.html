@@ -1,0 +1,279 @@
+{% extends "__base.html" %}
+{% load static %}
+{% block title %}Real World Django - событие {{ event.title }}{% endblock %}
+
+<!-- Start MAIN_CONTAINER -->
+{% block content %}
+
+    <!-- Start CONTAINER_BAR -->
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-xl-12">
+                <div class="card m-b-30">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6 col-xl-5 mb-4">
+                                <img src="{% static 'images/svg-icon/event.svg' %}"
+                                     class="img-fluid" alt="event">
+                            </div>
+                            <div class="col-lg-6 col-xl-7">
+                                <p data-test="is_private" class="badge bg-dark">{% if event.is_private %}Private
+                                {% endif %}</p>
+                                <h2 data-test="event_title">{{ event.title }}</h2>
+                                <p data-test="event_rate" class="badge bg-warning">{{ event.rate }} / 5</p>
+                                <h5 data-test="event_category" class="mt-3">{{ event.category }}</h5>
+                                <p data-test="event_description" class="my-4">{{ event.description }}</p>
+                                <ul>
+                                    {% for el in event.features_list %}
+                                        <li data-test="feature">{{ el.title }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="text-black">дата: <strong
+                                        data-test="date_start">{{ event.date_start|date:"d.m.Y в H:i" }}</strong>
+                                </p>
+
+                                {#                                <div class="button-list mt-5 mb-5 d-flex">#}
+                                {#                                        <form action="#" method="post" class="me-2">#}
+                                {#                                            <button data-test="enroll"#}
+                                {#                                                    type="submit"#}
+                                {#                                                    class="btn btn-success"#}
+                                {#                                                    disabled>#}
+                                {#                                                Записаться#}
+                                {#                                            </button>#}
+                                {#                                        </form>#}
+                                {#                                        <a href="#" class="btn btn-primary me-2">#}
+                                {#                                            <i class="bi bi-pencil"></i>Изменить#}
+                                {#                                        </a>#}
+                                {#                                        <button type="button" class="btn btn-outline-danger"#}
+                                {#                                                title="Добавить в избранное">#}
+                                {#                                            <i class="bi bi-heart-fill"></i>#}
+                                {#                                        </button>#}
+                                {#                                    </div>#}
+
+                                <div class="button-list mt-5 mb-5">
+                                    <button {{ attr }} data-test="enroll"
+                                                       type="button"
+                                                       class="btn btn-success"
+                                    >
+                                        Записаться
+                                    </button>
+                                    <a href="#reviews" class="btn btn-primary">
+                                        <i class="bi bi-pencil"></i>Оставить отзыв
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger"
+                                            title="Добавить в избранное">
+                                        <i class="bi bi-heart-fill"></i>
+                                    </button>
+                                </div>
+                                <div class="card text-center col-xl-6 m-b-30 bg-info-rgba border btn-shadow">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Количество участников</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <i class="bi bi-emoji-smile text-success" style="font-size: 3rem"></i>
+                                        <h4 data-test="enroll_count">
+                                            {{ event.display_enroll_count }} из {{ event.participants_number }}
+                                        </h4>
+                                        <p data-test="places_left">
+                                            осталось мест: {% if available > 0 %} {{ available }}
+                                        {% else %} мест нет
+                                        {% endif %}
+                                        </p>
+                                        <div class="progress" style="height: 5px;">
+                                            <div data-test="progressbar"
+                                                 class="progress-bar bg-success"
+                                                 role="progressbar"
+                                                 style="width: {% widthratio available event.participants_number 100 %}%"
+                                            >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4" id="reviews">
+            <h2 class="card-title">Отзывы</h2>
+            <div class="col-lg-12" id="reviewCol">
+                <div class="card my-3 shadow">
+                    <div class="card-header">
+                        <h4 class="card-title">Написать отзыв</h4>
+                    </div>
+
+                    <div class="card-body">
+                        <form id="formReview">
+                            <div class="d-none">{% csrf_token %}</div>
+                            <input type="hidden" name="event_id" value="{{ event.id }}">
+                            <div class="row row-cols-lg-auto g-3 mb-3 align-items-start">
+                                <div class="col-12">
+                                    <label for="rate" class="form-label">Оценка</label>
+                                    <select class="form-select" id="rate" name="rate">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="text" class="form-label">Текст отзыва</label>
+                                <textarea class="form-control"
+                                          name="text" id="text"
+                                          rows="3"
+                                          required
+                                ></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary mt-3" id="btnSendReview">
+                                Отправить отзыв
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {% for review in reviews %}
+                    <div class="card my-3">
+                        <div class="card-header pb-0">
+                            <h5 class="card-title">
+                                {{ review.user }}
+                                <span class="badge bg-warning">{{ review.rate }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <img src="{% static 'images/users/men.svg' %}"
+                                 class="img-fluid me-3" alt="user">
+                            <p data-test="review_text" class="mb-0 d-inline">
+                                {{ review.text }}
+                            </p>
+                            <p data-test="review_date" class="mt-3"> {{ review.created|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+    <!-- End CONTAINER_BAR -->
+
+    <!-- End MAIN_CONTAINER -->
+
+    <script>
+        function addNewReview(innerText = '', innerHTML = '') {
+            let reviewHTML = innerHTML
+            if (!reviewHTML) {
+                reviewHTML = `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                ` + innerText.toString().replaceAll('\n', '<br>') + `
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`
+            }
+            let container = document.getElementById('reviewCol'),
+                firstChild = container.childNodes[1]
+            if (container && firstChild) {
+                let newReview = document.createElement('div')
+                newReview.innerHTML = reviewHTML
+                firstChild.parentNode.insertBefore(newReview, firstChild.nextSibling)
+            }
+        }
+
+        function createNewReview(data) {
+            let rate = '',
+                text = '',
+                created = '',
+                user_name = '',
+                ok = false,
+                msg = ''
+            try {
+                ok = data.ok
+                msg = data.msg
+                rate = data.rate
+                text = data.text
+                created = data.created
+                user_name = data.user_name
+            } catch (err) {
+                addNewReview(err)
+            }
+            if (ok === true) {
+                if (!rate || !text || !created) {
+                    let errMsg = 'rate = ' + rate + '\ntext = ' + text + '\ncreated = ' + created
+                    addNewReview('Некоторые переменные в JsonResponse не определены:\n' + errMsg)
+                } else {
+                    let newReviewInnerHTML = `
+                        <div class="card my-3">
+                            <div class="card-header pb-0">
+                                <h5 class="card-title">
+                                    ` + user_name + `
+                                    <span class="badge bg-warning">` + rate + `</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <img src="{% static 'images/users/men.svg' %}" class="img-fluid me-3" alt="user">
+                                <p data-test="review_text" class="mb-0 d-inline">
+                                    ` + text + `
+                                </p>
+                                <p data-test="review_date" class="mt-3">` + created + `</p>
+                            </div>
+                        </div>`
+                    addNewReview('', newReviewInnerHTML)
+                }
+            } else {
+                let extraMsg = ''
+                if (ok === false) {
+                    extraMsg = msg
+                } else {
+                    extraMsg = 'Новый отзыв не отображен, потому что в ответе от сервера не найден ключ "ok"'
+                    if (msg) {
+                        extraMsg = extraMsg + '\nСообщение от сервера: ' + msg
+                    }
+                }
+                addNewReview(extraMsg)
+            }
+        }
+
+        function ready() {
+
+            let formReview = document.getElementById('formReview')
+            let btnSendReview = document.getElementById('btnSendReview')
+            if (formReview && btnSendReview) {
+                btnSendReview.onclick = () => {
+                    // Создаем JavaScript объект formData - в этом объекте хранятся данные для HTTP запроса
+                    // Это данные из формы добавления отзыва - поля Оценка и Текст отзыва
+                    let formData = new FormData(formReview)
+                    // Создаем JavaScript объект для отправки HTTP запроса
+                    let xhr = new XMLHttpRequest()
+                    // Отправляем запрос с методом POST на нужный URL адрес
+                    xhr.open("POST", "{% url 'api_events:create_review' %}")
+                    // Добавляем в запрос данные с формы отзыва
+                    xhr.send(formData)
+
+                    // Ждем ответа от сервера. Метод onloadend срабатывает когда придет ответ
+                    xhr.onloadend = function () {
+                        // Если статус ответа = 200, значит все OK. Отправленный HTTP успешно вернул ответ
+                        if (xhr.status === 200) {
+                            try {
+                                // Строка формата JSON содержится в реквизите xhr.response - парсим ее
+                                let response = JSON.parse(xhr.response)
+                                // Запускаем функцию по созданию на странице нового элемента с отзывом
+                                createNewReview(response)
+                            } catch (err) {
+                                // Если не удалось распарсить строку ответа, то выводим ошибку
+                                console.error(err)
+                                addNewReview(err)
+                            }
+                        } else {
+                            // Если статус ответа не 200, значит при обработке HTTP возникли какие-то ошибки
+                            // Ситуации могут быть разные. Выводим ошибку со статусом ответа
+                            addNewReview("Ошибка " + xhr.status)
+                        }
+                    }
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", ready)
+    </script>
+
+{% endblock %}

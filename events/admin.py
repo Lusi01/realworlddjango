@@ -8,27 +8,21 @@ class Fullness(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         filter_list = (
+            ('1', 'sold-out'),
+            ('2', '>50%'),
             ('3', '<= 50%'),
-            ('2', '> 50%'),
-            ('1', 'sold-out')
         )
         return filter_list
 
     def queryset(self, request, queryset):
         events_id = []
-        filter_value = self.value()
-        sampling_principle = True
+        rez = ''
+        for el in self.lookup_choices:
+            if self.value() in el:
+                rez = el[1]
 
         for event in queryset:
-            dist = event.participants_number - event.enrolls.count()
-
-            if filter_value == '1':
-                sampling_principle = (dist == 0)
-            elif filter_value == '2':
-                sampling_principle = (dist <= (event.participants_number / 2) and dist != 0)
-            elif filter_value == '3':
-                sampling_principle = (dist > (event.participants_number / 2))
-
+            sampling_principle =  (str(event.display_places_left()).find(rez) >= 0)
             if sampling_principle == True:
                 events_id.append(event.id)
 
@@ -75,17 +69,18 @@ class ReviewInstanceInline(admin.TabularInline):
         return False
 
 
+
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'category', 'date_start', 'is_private', 'participants_number',
-                    'display_enroll_count',  'display_places_left' ]
+                    'display_enroll_count',  'display_places_left', ]
     list_select_related = ['category', ]
     list_display_links = ['id', 'title' ]
     inlines = [ ReviewInstanceInline]
     fields = ['title', 'description', 'date_start', 'participants_number', 'is_private', 'category',
-               'features', 'display_enroll_count', 'display_places_left']
+               'features', 'display_enroll_count', 'display_places_left', 'rate', 'logo', ]
     filter_horizontal = ['features']
-    readonly_fields = ['display_enroll_count', 'display_places_left', ]
+    readonly_fields = ['display_enroll_count', 'display_places_left', 'rate', ]
     ordering= ['date_start']
     search_fields = ['title']
     list_filter = [Fullness, 'category', 'features', ]
