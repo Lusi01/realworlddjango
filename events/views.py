@@ -38,7 +38,9 @@ def event_detail(request, pk):
         el['user'] = get_object_or_404(User, pk=el['user_id']).__str__()
         reviews.append(el)
 
-    available = event.participants_number - event.enrolls.count()
+    available = 0
+    if event.enrolls.count():
+        available = event.participants_number - event.enrolls.count()
     attr = ''
     caption = 'Записаться'
     if available < 1:

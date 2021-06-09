@@ -77,7 +77,9 @@ class Event(models.Model):
     display_enroll_count.short_description = 'Количество записей'
 
     def display_places_left(self):
-        available = (self.participants_number - self.enrolls.count())
+        available = 0
+        if self.enrolls.count():
+            available = (self.participants_number - self.enrolls.count())
         value = ''
         if available == 0:
             value = str(available) + ' (sold-out)'
