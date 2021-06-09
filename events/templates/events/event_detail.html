@@ -17,8 +17,8 @@
                                      class="img-fluid" alt="event">
                             </div>
                             <div class="col-lg-6 col-xl-7">
-                                <p data-test="is_private" class="badge bg-dark">{% if event.is_private %}Private
-                                {% endif %}</p>
+                                {% if event.is_private %}<span data-test="is_private" class="badge bg-dark">Private
+                                </span>{% endif %}
                                 <h2 data-test="event_title">{{ event.title }}</h2>
                                 <p data-test="event_rate" class="badge bg-warning">{{ event.rate }} / 5</p>
                                 <h5 data-test="event_category" class="mt-3">{{ event.category }}</h5>
@@ -55,7 +55,7 @@
                                                        type="button"
                                                        class="btn btn-success"
                                     >
-                                        Записаться
+                                        {{ caption }}
                                     </button>
                                     <a href="#reviews" class="btn btn-primary">
                                         <i class="bi bi-pencil"></i>Оставить отзыв
@@ -186,6 +186,7 @@
                 user_name = '',
                 ok = false,
                 msg = ''
+
             try {
                 ok = data.ok
                 msg = data.msg
@@ -260,7 +261,6 @@
                                 createNewReview(response)
                             } catch (err) {
                                 // Если не удалось распарсить строку ответа, то выводим ошибку
-                                console.error(err)
                                 addNewReview(err)
                             }
                         } else {

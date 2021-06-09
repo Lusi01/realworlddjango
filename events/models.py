@@ -58,7 +58,10 @@ class Event(models.Model):
     @property
     def rate(self):
         query_set_ratings = self.reviews.values_list('rate', flat=True)
-        rates = sum(query_set_ratings) / query_set_ratings.count()
+        if query_set_ratings.count() == 0:
+            rates = 0
+        else:
+            rates = sum(query_set_ratings) / query_set_ratings.count()
         return round(rates, 1)
     #rate.short_description = 'Средний рэйтинг'
 

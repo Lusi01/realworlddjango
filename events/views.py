@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from events.models import Category, Event, Feature, Review
 from django.contrib.auth.models import User
@@ -16,7 +16,7 @@ def index(request):
 def event_list(request):
     template_name = 'events/event_list.html'
     event_objects = Event.objects.all()
-    event_number = Event.objects.all().count()
+    event_number = event_objects.count()
 
     category = Category.objects.all()
     feature = Feature.objects.all()
@@ -40,14 +40,18 @@ def event_detail(request, pk):
 
     available = event.participants_number - event.enrolls.count()
     attr = ''
+    caption = 'Записаться'
     if available < 1:
         attr = 'disabled'
+        caption = 'Мест нет'
+
 
     context = {
         'event': event,
         'reviews': reviews,
         'available': available,
         'attr': attr,
+        'caption': caption
     }
     return render(request, template_name, context)
 
@@ -81,22 +85,29 @@ def create_event(request):
 @require_POST
 def create_review(request):
 
+    rate = '',
+    text = '',
+    ok = True
     msg = ''
+
     event_id = request.POST.get('event_id')
-    event = get_object_or_404(Event, pk=event_id)
     rate = request.POST.get('rate')
-    print('rate', rate)
     text = request.POST.get('text')
-    print('text', text)
     user_name = request.user
     if not request.user.is_authenticated:
         user_name = None
 
+
+    #event = get_object_or_404(Event, pk=event_id)
+    event = Event.objects.get(pk=event_id)
     created = datetime.date.today().strftime('%d.%m.%Y')
-    ok = True
 
     if Review.objects.filter(user=user_name):
         msg = 'Вы уже отправляли отзыв к этому событию'
+        ok = False
+
+    if not event:
+        msg = 'Событие, на которое отправляете комментарий, не найдено!'
         ok = False
 
     elif text == '' or rate == '':
@@ -106,7 +117,12 @@ def create_review(request):
     elif user_name and user_name.is_authenticated:
         # добавляем в БД
         try:
-            print('на запись')
+            #print('на запись')
+            # print(user_name)
+            # print(event)
+            # print(rate)
+            # print(text)
+            # print(created)
             element = Review(
                 user = user_name,
                 event = event,
@@ -134,4 +150,5 @@ def create_review(request):
         'user_name': user_name.__str__()  # 'admin'  # user_name, #Полное имя пользователя
     }
 
-    return HttpResponse(json.dumps(formData))
+    #return HttpResponse(json.dumps(formData))
+    return JsonResponse(formData)
