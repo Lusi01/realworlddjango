@@ -85,24 +85,29 @@ def create_event(request):
 @require_POST
 def create_review(request):
 
-    rate = '',
-    text = '',
+    rate = ''
+    text = ''
+    created = ''
+    user_name = ''
     ok = True
     msg = ''
 
     event_id = request.POST.get('event_id')
     rate = request.POST.get('rate')
     text = request.POST.get('text')
-    user_name = request.user
-    if not request.user.is_authenticated:
-        user_name = None
+    user_req = request.user
 
+    if not request.user.is_authenticated:
+        user_req = None
+        ok = False
+    else:
+        user_name = user_req.__str__()
 
     #event = get_object_or_404(Event, pk=event_id)
     event = Event.objects.get(pk=event_id)
     created = datetime.date.today().strftime('%d.%m.%Y')
 
-    if Review.objects.filter(user=user_name):
+    if Review.objects.filter(user=user_req):
         msg = 'Вы уже отправляли отзыв к этому событию'
         ok = False
 
@@ -114,17 +119,11 @@ def create_review(request):
         msg = 'Оценка и текст отзыва - обязательные поля'
         ok = False
 
-    elif user_name and user_name.is_authenticated:
+    elif user_req and user_req.is_authenticated:
         # добавляем в БД
         try:
-            #print('на запись')
-            # print(user_name)
-            # print(event)
-            # print(rate)
-            # print(text)
-            # print(created)
             element = Review(
-                user = user_name,
+                user = user_req,
                 event = event,
                 rate = rate,
                 text = text,
@@ -135,8 +134,10 @@ def create_review(request):
 
         except:
             msg = 'комментарий не удалось сохранить в БД! '
-        finally:
-            msg = msg + ' Отправлено!'
+            ok = False
+        # finally:
+        #     msg = msg + ' Отправлено!'
+
     else:
         msg = 'Отзывы могут отправлять только зарегистрированные пользователи'
         ok = False
@@ -147,8 +148,9 @@ def create_review(request):
         'rate': rate,  # оценка, - обязательно
         'text': text,  # текст отзыва - обязательно
         'created': created,  # Дата создания отзыва в формате DD.MM.YYYY
-        'user_name': user_name.__str__()  # 'admin'  # user_name, #Полное имя пользователя
+        'user_name': user_name # 'admin'  # user_name, #Полное имя пользователя
     }
+    #print(formData)
 
     #return HttpResponse(json.dumps(formData))
     return JsonResponse(formData)
