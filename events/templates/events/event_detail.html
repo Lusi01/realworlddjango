@@ -13,8 +13,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-6 col-xl-5 mb-4">
-                                <img src="{% static 'images/svg-icon/event.svg' %}"
-                                     class="img-fluid" alt="event">
+                                <img src="{{ event.logo_url }}" alt="{{ event }}" class="avatar-xxl img-fluid">
                             </div>
                             <div class="col-lg-6 col-xl-7">
                                 {% if event.is_private %}<span data-test="is_private" class="badge bg-dark">Private
@@ -32,39 +31,34 @@
                                         data-test="date_start">{{ event.date_start|date:"d.m.Y в H:i" }}</strong>
                                 </p>
 
-                                {#                                <div class="button-list mt-5 mb-5 d-flex">#}
-                                {#                                        <form action="#" method="post" class="me-2">#}
-                                {#                                            <button data-test="enroll"#}
-                                {#                                                    type="submit"#}
-                                {#                                                    class="btn btn-success"#}
-                                {#                                                    disabled>#}
-                                {#                                                Записаться#}
-                                {#                                            </button>#}
-                                {#                                        </form>#}
-                                {#                                        <a href="#" class="btn btn-primary me-2">#}
-                                {#                                            <i class="bi bi-pencil"></i>Изменить#}
-                                {#                                        </a>#}
-                                {#                                        <button type="button" class="btn btn-outline-danger"#}
-                                {#                                                title="Добавить в избранное">#}
-                                {#                                            <i class="bi bi-heart-fill"></i>#}
-                                {#                                        </button>#}
-                                {#                                    </div>#}
+                                <div class="button-list mt-5 mb-5 d-flex">
 
-                                <div class="button-list mt-5 mb-5">
-                                    <button {{ attr }} data-test="enroll"
-                                                       type="button"
-                                                       class="btn btn-success"
-                                    >
-                                        {{ caption }}
-                                    </button>
-                                    <a href="#reviews" class="btn btn-primary">
-                                        <i class="bi bi-pencil"></i>Оставить отзыв
+                                    <form action="{% url 'events:event_enroll' %}" method="post" class="me-2">
+                                        {% csrf_token %}
+                                        {{ enrolls_form }}
+                                        <button {{ attr }} data-test="enroll"
+                                                           type="submit"
+                                                           class="btn btn-success"
+                                        >
+                                            {{ caption }}
+                                        </button>
+                                    </form>
+
+                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-primary me-2">
+                                        <i class="bi bi-pencil"></i>Изменить
                                     </a>
-                                    <button type="button" class="btn btn-outline-danger"
-                                            title="Добавить в избранное">
-                                        <i class="bi bi-heart-fill"></i>
-                                    </button>
+
+                                    <form action="{% url 'events:favorite_creation' %}" method="post" class="me-2">
+                                        {% csrf_token %}
+                                        {{ favorite_form }}
+                                        <button type="submit" class="btn btn-outline-danger"
+                                                title="Добавить в избранное">
+                                            <i class="bi bi-heart-fill"></i>
+                                        </button>
+                                    </form>
+
                                 </div>
+
                                 <div class="card text-center col-xl-6 m-b-30 bg-info-rgba border btn-shadow">
                                     <div class="card-header">
                                         <h5 class="card-title">Количество участников</h5>
@@ -95,6 +89,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row mt-4" id="reviews">
             <h2 class="card-title">Отзывы</h2>
             <div class="col-lg-12" id="reviewCol">

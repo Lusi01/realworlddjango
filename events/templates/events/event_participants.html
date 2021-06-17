@@ -1,0 +1,58 @@
+{% extends "__base.html" %}
+{% load static %}
+{% block title %}Real World Django -
+    {% if event %} Редактирование события
+    {% else %} Добавление события
+    {% endif %}
+{% endblock %}
+
+
+<!-- Start MAIN_CONTAINER -->
+{% block content %}
+    <!-- Start CONTAINER_BAR -->
+    <div class="container-fluid mt-3">
+
+        <div class="row">
+            {% include "snippets/_eventmenu.html" %}
+
+            <div class="col-lg-7 col-xl-9">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Участники события {{ event.title }} </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Имя</th>
+                                    <th>Email</th>
+                                    <th>Оценка</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for enr in enrolls %}
+                                    <tr>
+                                        <th data-test="enroll_counter">{{ forloop.counter }}</th>
+                                        <td data-test="enroll_user">{{ enr.user.username }}</td>
+                                        <td data-test="enroll_email">{{ enr.user.email }}</td>
+
+                                        <td data-test="enroll_rate">
+                                            {{ enr.review }}
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

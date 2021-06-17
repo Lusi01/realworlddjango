@@ -1,0 +1,8 @@
+{% extends "registration/reg_base.html" %}
+
+{% block content %}
+    <h1>Недостаточно прав для добавления нового объекта</h1>
+    <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary" title="Назад">
+        <i class="bi bi-pencil-square"></i>Вернуться
+    </a>
+{% endblock %}

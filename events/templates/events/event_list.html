@@ -66,15 +66,7 @@
             </div>
         </div>
 
-        {#            <ul class="pagination">#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_start">&laquo;</a></li>#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_previous">Previous</a></li>#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_1">1</a></li>#}
-        {#                <li class="page-item active"><a class="page-link" href="#" data-test="p_2">2</a></li>#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_3">3</a></li>#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_next">Next</a></li>#}
-        {#                <li class="page-item"><a class="page-link" href="#" data-test="p_end">&raquo;</a></li>#}
-        {#            </ul>#}
+        {% include 'snippets/_pagination.html' %}
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4">
             {% for event in event_objects %}
@@ -82,8 +74,8 @@
                     <div class="card h-100">
                         <div class="card-header">
                             <h5 class="card-title mb-0">{{ event.title }}</h5>
-                            <span data-test="is_private" class="badge bg-dark">{% if event.is_private %}Private
-                            {% endif %}</span>
+                            {% if event.is_private %}<span data-test="is_private" class="badge bg-dark">Private
+                            </span>{% endif %}
                         </div>
                         <div class="card-body">
                             <h3>{{ event.display_enroll_count }} из {{ event.participants_number }}</h3>
@@ -100,7 +92,8 @@
                         </div>
                         <div class="card-footer">
                             <a href="{{ event.get_absolute_url }}" class="btn btn-success">Смотреть</a>
-                            <a href="#" class="btn btn-outline-primary" title="Изменить">
+                            <a href="{% url 'events:event_update' event.pk %}" class="btn btn-outline-primary"
+                               title="Изменить">
                                 <i class="bi bi-pencil-square"></i>Изменить
                             </a>
                         </div>

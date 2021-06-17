@@ -1091,3 +1091,24 @@ code {
     color: #0D47A1;
 }
 
+.mb-3 > label {
+    display: flex;
+
+}
+.special {
+    width: 50%;
+    color: #1212d4;
+}
+
+.special .custom_check {
+    alignment: left;
+}
+
+.errorlist > li {
+    color: red;
+    font-weight: bold;
+    list-style-type: none;
+}
+.errorlist > li::before {
+        content: " - "
+    }

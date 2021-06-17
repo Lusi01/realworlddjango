@@ -1,86 +1,239 @@
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 import datetime
-import json
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpResponseForbidden
 
-from events.models import Category, Event, Feature, Review
+from events.forms import EventCreationForm, EventUpdateForm, EventEnrollForm, FavoriteCreationForm
+from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.urls import reverse_lazy
+
+
+
+class LoginRequiredMixin:
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.user.is_authenticated:
+            # выдается сообщение об ошибке с кодом status_code = 403:
+            return HttpResponseForbidden('Недостаточно прав')
+
+        return super().get(request, *args, **kwargs)
+
+
+
+def error(request):
+    template_name =  'events/error_message.html'
+    context = {
+        'title': 'Ошибка'
+    }
+    return render(request, template_name, context)
+
 
 
 def index(request):
+    template_name = 'events/index.html'
+    context = {}
+    return render(request, template_name, context)
+
+
+def hello(request):
     return HttpResponse('Hello, World!')
 
 
-def event_list(request):
-    template_name = 'events/event_list.html'
-    event_objects = Event.objects.all()
-    event_number = event_objects.count()
 
-    category = Category.objects.all()
-    feature = Feature.objects.all()
+class FavoriteCreationView(LoginRequiredMixin, CreateView):
+    model = Favorite
+    form_class = FavoriteCreationForm
 
-    context = {
-        'event_objects': event_objects,
-        'event_number': event_number,
-        'category': category,
-        'feature': feature,
-    }
-    return render(request, template_name, context)
+    def get_success_url(self):
+        return self.object.event.get_absolute_url()
 
+    def form_invalid(self, form):
+        messages.error(self.request, form.non_field_errors())
+        event = form.cleaned_data.get('event', None)
 
-def event_detail(request, pk):
-    template_name = 'events/event_detail.html'
-    event = get_object_or_404(Event, pk=pk)
-    reviews = []
-    for el in event.reviews.values():
-        el['user'] = get_object_or_404(User, pk=el['user_id']).__str__()
-        reviews.append(el)
+        user = form.cleaned_data.get('user', None)
+        if not user:
+            return HttpResponseForbidden('Недостаточно прав')
 
-    available = 0
-    if event.enrolls.count():
-        available = event.participants_number - event.enrolls.count()
-    attr = ''
-    caption = 'Записаться'
-    if available < 1:
-        attr = 'disabled'
-        caption = 'Мест нет'
+        if not event:
+            event = get_object_or_404(Event, pk=form.data.get('event'))
+        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
+        return HttpResponseRedirect(redirect_url)
+
+    def form_valid(self, form):
+        messages.success(self.request,
+                         f'Событие добавлено в избранное')
+        return super().form_valid(form)
 
 
-    context = {
-        'event': event,
-        'reviews': reviews,
-        'available': available,
-        'attr': attr,
-        'caption': caption
-    }
-    return render(request, template_name, context)
+
+class EventListView(ListView):
+    model = Event
+    template_name = 'events/event_list.html' # необязательно, указать, если имя шаблона отличается от стандартного
+    context_object_name = 'event_objects'
+    paginate_by = 9
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = Category.objects.all()
+        feature = Feature.objects.all()
+        context['event_number'] = Event.objects.count()
+        context['category'] = category
+        context['feature'] = feature
+
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.order_by('-pk')
 
 
-def create_event(request):
-    print(request)
+
+class EventCreateView(LoginRequiredMixin, CreateView):
+
+    model = Event
+    template_name = 'events/event_update.html'
+    form_class = EventCreationForm
+    success_url = reverse_lazy('events:event_list') #переход в случае успеха. По умолчанию, если не указать -
+    # переход на детальную страницу
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Новое событие создано успешно')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.non_field_errors())
+        return super().form_invalid(form)
+
+
+
+class EventParticipantsView(LoginRequiredMixin, DetailView):
+    model = Event #queryset по умолчанию
+    template_name = 'events/event_participants.html'
+
+    def get_context_data(self, **kwargs):
+        event = self.object
+        context = super().get_context_data(**kwargs)
+
+        enrolls = self.object.enrolls.all().order_by('user_id')
+        reviews = self.object.reviews.all().values('user_id', 'rate').order_by('user_id')
+
+        i = 0
+        for el in enrolls:
+            enrolls[i].review = 0
+            for rev in reviews:
+                if el.user.pk == rev['user_id']:
+                    enrolls[i].review = rev['rate']
+                    break
+
+            i += 1
+
+        context['enrolls'] = enrolls
+
+        return context
+
+
+
+class EventReviewsView(LoginRequiredMixin, DetailView):
+    model = Event #queryset по умолчанию
+    template_name = 'events/event_reviews.html'
+
+    def get_context_data(self, **kwargs):
+        event = self.object
+        context = super().get_context_data(**kwargs)
+
+        reviews = self.object.reviews.all()
+        context['reviews'] = reviews
+
+        return context
+
+
+
+class EventDeleteView(LoginRequiredMixin, DeleteView):
+
+    model = Event #queryset по умолчанию
+    template_name = 'events/event_delete.html'
+
+    success_url = reverse_lazy('events:event_list')
+
+    def delete(self, request, *args, **kwargs):
+        result = super().delete(request, *args, **kwargs)
+        messages.success(request, f'Событие {self.object} удалено')
+        return result
+
+
+
+class EventUpdateView(LoginRequiredMixin, UpdateView):
+    model = Event
 
     template_name = 'events/event_update.html'
-    msg = 'OK'
+    form_class = EventUpdateForm
 
-    if request.user and request.user.is_authenticated:
-        # добавляем в БД
-        try:
-          pass
-        except:
-            msg = 'событие не удалось создать! '
-        finally:
-            msg = msg + ' Событие создано!'
-    else:
-        msg = 'пользователь не залогинен'
 
-    content = {
-        'msg': msg, #Сообщение об ошибке
-    }
 
-    return render(request, template_name, content)
+class EventEnrollView(LoginRequiredMixin, CreateView ):
+    model = Enroll
+    form_class = EventEnrollForm
 
+    def get_success_url(self):
+        return self.object.event.get_absolute_url()
+
+    def form_valid(self, form):
+        messages.success(self.request,
+                         f'В событие добавлена запись')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.non_field_errors())
+        event = form.cleaned_data.get('event', None)
+
+        user = form.cleaned_data.get('user', None)
+        if not user:
+            return HttpResponseForbidden('Недостаточно прав')
+
+        if not event:
+            event = get_object_or_404(Event, pk=form.data.get('event'))
+        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
+        return HttpResponseRedirect(redirect_url)
+
+
+
+class EventDetailView(DetailView):
+    model = Event
+
+    def get_context_data(self, **kwargs):
+        event = self.object
+        created = datetime.date.today().strftime('%d.%m.%Y')
+
+        context = super().get_context_data(**kwargs)
+        context['reviews'] = self.object.reviews.all()
+        context['enrolls_form'] = EventEnrollForm(initial={
+            'user': self.request.user,
+            'event': self.object,
+            'created': created,
+
+        })
+        context['favorite_form'] = FavoriteCreationForm(initial={
+            'user': self.request.user,
+            'event': self.object,
+        })
+        available = self.object.participants_number - self.object.enrolls.count()
+
+        attr = ''
+        caption = 'Записаться'
+        if available < 1:
+            attr = 'disabled'
+            caption = 'Мест нет'
+        context['attr'] = attr
+        context['caption'] = caption
+        context['available'] = available
+
+        return context
 
 
 
@@ -105,15 +258,14 @@ def create_review(request):
     else:
         user_name = user_req.__str__()
 
-    #event = get_object_or_404(Event, pk=event_id)
     event = Event.objects.get(pk=event_id)
     created = datetime.date.today().strftime('%d.%m.%Y')
 
-    if Review.objects.filter(user=user_req):
+    if Review.objects.filter(user=user_req, event=event):
         msg = 'Вы уже отправляли отзыв к этому событию'
         ok = False
 
-    if not event:
+    elif not event:
         msg = 'Событие, на которое отправляете комментарий, не найдено!'
         ok = False
 
@@ -137,8 +289,6 @@ def create_review(request):
         except:
             msg = 'комментарий не удалось сохранить в БД! '
             ok = False
-        # finally:
-        #     msg = msg + ' Отправлено!'
 
     else:
         msg = 'Отзывы могут отправлять только зарегистрированные пользователи'
@@ -152,7 +302,5 @@ def create_review(request):
         'created': created,  # Дата создания отзыва в формате DD.MM.YYYY
         'user_name': user_name # 'admin'  # user_name, #Полное имя пользователя
     }
-    #print(formData)
 
-    #return HttpResponse(json.dumps(formData))
     return JsonResponse(formData)

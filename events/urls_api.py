@@ -3,6 +3,6 @@ from . import views
 
 app_name = 'api_events'
 
-urlpatterns = [ #имя - именно такое!
+urlpatterns = [
     path('reviews/create/', views.create_review, name='create_review'),
 ]

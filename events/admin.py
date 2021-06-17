@@ -41,6 +41,12 @@ class FeatureAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'title', ]
 
 
+@admin.register(models.Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'event', ]
+    list_display_links = ['id', 'user', 'event', ]
+
+
 @admin.register(models.Enroll)
 class EnrollAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'event', 'created', ]

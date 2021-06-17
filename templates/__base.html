@@ -10,8 +10,8 @@
     <title>{% block title %}{% endblock %}</title>
 
     <!-- Bootstrap -->
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <!-- Project style -->
@@ -20,14 +20,15 @@
 </head>
 <body>
 <div class="vertical-layout">
-{% include "snippets/_leftheader.html" %}
+    {% include "snippets/_leftheader.html" %}
 
-<div class="rightbar">
-{% include "snippets/_rightheader.html" %}
-    {% block content %}{% endblock %}
-</div>
+    <div class="rightbar">
+        {% include "snippets/_rightheader.html" %}
+        {% include "snippets/_messages.html" %}
+        {% block content %}{% endblock %}
+    </div>
 
-{% include "snippets/_footer.html" %}
+    {% include "snippets/_footer.html" %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
