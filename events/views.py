@@ -17,6 +17,13 @@ class LoginRequiredMixin:
 
     def get(self, request, *args, **kwargs):
 
+        user = request.user
+
+        if not request.user.username:
+            # выдается сообщение об ошибке с кодом status_code = 403:
+            return HttpResponseForbidden('Не задан user')
+
+
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
@@ -47,6 +54,12 @@ def hello(request):
 
 class FavoriteCreationView(LoginRequiredMixin, CreateView):
     model = Favorite
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.username or not self.request.user.is_authenticated:
+            return HttpResponseForbidden('Недостаточно прав FavoriteCreationView')
+        return super().post(request, *args, **kwargs)
+
     form_class = FavoriteCreationForm
 
     def get_success_url(self):
@@ -99,6 +112,7 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     model = Event
     template_name = 'events/event_update.html'
     form_class = EventCreationForm
+
     success_url = reverse_lazy('events:event_list') #переход в случае успеха. По умолчанию, если не указать -
     # переход на детальную страницу
 
@@ -178,6 +192,13 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
 
 class EventEnrollView(LoginRequiredMixin, CreateView ):
     model = Enroll
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.username or not self.request.user.is_authenticated:
+            return HttpResponseForbidden('Недостаточно прав EventEnrollView')
+
+        return super().post(request, *args, **kwargs)
+
     form_class = EventEnrollForm
 
     def get_success_url(self):
@@ -190,16 +211,7 @@ class EventEnrollView(LoginRequiredMixin, CreateView ):
 
     def form_invalid(self, form):
         messages.error(self.request, form.non_field_errors())
-        event = form.cleaned_data.get('event', None)
-
-        user = form.cleaned_data.get('user', None)
-        if not user:
-            return HttpResponseForbidden('Недостаточно прав')
-
-        if not event:
-            event = get_object_or_404(Event, pk=form.data.get('event'))
-        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
-        return HttpResponseRedirect(redirect_url)
+        return super().form_invalid(form)
 
 
 
@@ -225,11 +237,18 @@ class EventDetailView(DetailView):
         available = self.object.participants_number - self.object.enrolls.count()
 
         attr = ''
+        attr_for_notuser = ''
         caption = 'Записаться'
+        if not self.request.user.username or not self.request.user.is_authenticated:
+            attr_for_notuser = 'disabled'
+            attr = ''
+
         if available < 1:
-            attr = 'disabled'
+            if attr_for_notuser == '':
+                attr = 'disabled'
             caption = 'Мест нет'
         context['attr'] = attr
+        context['attr_for_notuser'] = attr_for_notuser
         context['caption'] = caption
         context['available'] = available
 

@@ -16,14 +16,9 @@ class EventEnrollForm(forms.ModelForm):
     # запретить создание уже существующей записи
     def clean(self):
         cleaned_data = super().clean()
+        print(cleaned_data)
 
-        user_req = None
-        if 'user' in cleaned_data:
-            user_req = cleaned_data['user']
-        else:
-            raise forms.ValidationError(f'Недостаточно прав для записи на событие! ')
-
-        if Enroll.objects.filter(user=user_req, event=cleaned_data['event']).exists():
+        if Enroll.objects.filter(user=cleaned_data['user'], event=cleaned_data['event']).exists():
             raise forms.ValidationError(f'Вы уже записаны на это событие: ')
 
         return cleaned_data
@@ -45,9 +40,6 @@ class FavoriteCreationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not 'user' in cleaned_data:
-            raise forms.ValidationError(f'Недостаточно прав для записи в избранное! ')
-
         if Favorite.objects.filter(user=cleaned_data['user'], event=cleaned_data['event']).exists():
             raise forms.ValidationError(f'Вы уже записали событие в избранное!')
 
@@ -65,6 +57,7 @@ class EventCreateUpdateForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = '__all__'
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -85,6 +78,7 @@ class EventCreationForm(EventCreateUpdateForm):
     # запретить создание уже существующего события
     def clean(self):
         cleaned_data = super().clean()
+
         title = cleaned_data.get('title')
 
         if Event.objects.filter(title=title).exists():

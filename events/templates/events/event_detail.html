@@ -33,10 +33,11 @@
 
                                 <div class="button-list mt-5 mb-5 d-flex">
 
-                                    <form action="{% url 'events:event_enroll' %}" method="post" class="me-2">
+                                    <form  action="{% url 'events:event_enroll' %}" method="post"
+                                          class="me-2">
                                         {% csrf_token %}
                                         {{ enrolls_form }}
-                                        <button {{ attr }} data-test="enroll"
+                                        <button {{ attr }}{{ attr_for_notuser }}  data-test="enroll"
                                                            type="submit"
                                                            class="btn btn-success"
                                         >
@@ -44,14 +45,15 @@
                                         </button>
                                     </form>
 
-                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-primary me-2">
+                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-primary
+                                     me-2 {{ attr_for_notuser }}"  >
                                         <i class="bi bi-pencil"></i>Изменить
                                     </a>
 
                                     <form action="{% url 'events:favorite_creation' %}" method="post" class="me-2">
                                         {% csrf_token %}
                                         {{ favorite_form }}
-                                        <button type="submit" class="btn btn-outline-danger"
+                                        <button {{ attr_for_notuser }} type="submit" class="btn btn-outline-danger"
                                                 title="Добавить в избранное">
                                             <i class="bi bi-heart-fill"></i>
                                         </button>
@@ -122,7 +124,7 @@
                                           required
                                 ></textarea>
                             </div>
-                            <button type="button" class="btn btn-primary mt-3" id="btnSendReview">
+                            <button {{ attr_for_notuser }} type="button" class="btn btn-primary mt-3" id="btnSendReview">
                                 Отправить отзыв
                             </button>
                         </form>
