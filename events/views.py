@@ -17,9 +17,9 @@ class LoginRequiredMixin:
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        if not request.user.username:
-            # выдается сообщение об ошибке с кодом status_code = 403:
-            return HttpResponseForbidden('Не задан user')
+        # if not request.user.username:
+        #     # выдается сообщение об ошибке с кодом status_code = 403:
+        #     return HttpResponseForbidden('Не задан user')
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
@@ -27,9 +27,9 @@ class LoginRequiredMixin:
 
     def post(self, request, *args, **kwargs):
         user = request.user
-        if not request.user.username:
-            # выдается сообщение об ошибке с кодом status_code = 403:
-            return HttpResponseForbidden('Не задан user')
+        # if not request.user.username:
+        #     # выдается сообщение об ошибке с кодом status_code = 403:
+        #     return HttpResponseForbidden('Не задан user')
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
@@ -62,10 +62,10 @@ def hello(request):
 class FavoriteCreationView(LoginRequiredMixin, CreateView):
     model = Favorite
 
-    def post(self, request, *args, **kwargs):
-        if not self.request.user.username or not self.request.user.is_authenticated:
-            return HttpResponseForbidden('Недостаточно прав FavoriteCreationView')
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     if not self.request.user.username or not self.request.user.is_authenticated:
+    #         return HttpResponseForbidden('Недостаточно прав FavoriteCreationView')
+    #     return super().post(request, *args, **kwargs)
 
     form_class = FavoriteCreationForm
 
@@ -197,11 +197,10 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
 class EventEnrollView(LoginRequiredMixin, CreateView ):
     model = Enroll
 
-    def post(self, request, *args, **kwargs):
-        if not self.request.user.username or not self.request.user.is_authenticated:
-            return HttpResponseForbidden('Недостаточно прав EventEnrollView')
-
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     if not self.request.user.username or not self.request.user.is_authenticated:
+    #         return HttpResponseForbidden('Недостаточно прав EventEnrollView')
+    #     return super().post(request, *args, **kwargs)
 
     form_class = EventEnrollForm
 
@@ -224,14 +223,14 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         event = self.object
-        created = datetime.date.today().strftime('%d.%m.%Y')
+        #created = datetime.date.today().strftime('%d.%m.%Y')
 
         context = super().get_context_data(**kwargs)
         context['reviews'] = self.object.reviews.all()
         context['enrolls_form'] = EventEnrollForm(initial={
             'user': self.request.user,
             'event': self.object,
-            'created': created,
+            #'created': created,
 
         })
         context['favorite_form'] = FavoriteCreationForm(initial={
@@ -239,21 +238,6 @@ class EventDetailView(DetailView):
             'event': self.object,
         })
         available = self.object.participants_number - self.object.enrolls.count()
-
-        attr = ''
-        attr_for_notuser = ''
-        caption = 'Записаться'
-        if not self.request.user.username or not self.request.user.is_authenticated:
-            attr_for_notuser = 'disabled'
-            attr = ''
-
-        if available < 1:
-            if attr_for_notuser == '':
-                attr = 'disabled'
-            caption = 'Мест нет'
-        context['attr'] = attr
-        context['attr_for_notuser'] = attr_for_notuser
-        context['caption'] = caption
         context['available'] = available
 
         return context
@@ -284,7 +268,7 @@ def create_review(request):
     event = Event.objects.get(pk=event_id)
     created = datetime.date.today().strftime('%d.%m.%Y')
 
-    if Review.objects.filter(user=user_req, event=event):
+    if Review.objects.filter(user=user_req, event=event).exists():
         msg = 'Вы уже отправляли отзыв к этому событию'
         ok = False
 
@@ -304,8 +288,8 @@ def create_review(request):
                 event = event,
                 rate = rate,
                 text = text,
-                created = created,
-                updated = created
+                # created = created,
+                # updated = created
             )
             element.save()
 
@@ -317,7 +301,7 @@ def create_review(request):
         msg = 'Отзывы могут отправлять только зарегистрированные пользователи'
         ok = False
 
-    formData = {
+    form_data = {
         'ok': ok,  # True, если отзыв создан успешно
         'msg': msg,  # Сообщение об ошибке
         'rate': rate,  # оценка, - обязательно
@@ -326,4 +310,4 @@ def create_review(request):
         'user_name': user_name # 'admin'  # user_name, #Полное имя пользователя
     }
 
-    return JsonResponse(formData)
+    return JsonResponse(form_data)

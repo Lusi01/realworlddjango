@@ -33,28 +33,48 @@
 
                                 <div class="button-list mt-5 mb-5 d-flex">
 
-                                    <form  action="{% url 'events:event_enroll' %}" method="post"
+                                    <form action="{% url 'events:event_enroll' %}" method="post"
                                           class="me-2">
                                         {% csrf_token %}
                                         {{ enrolls_form }}
-                                        <button {{ attr }}{{ attr_for_notuser }}  data-test="enroll"
-                                                           type="submit"
-                                                           class="btn btn-success"
+                                        <button
+                                                {% if not user.is_authenticated or available < 1 %}
+                                                    disabled
+                                                {% endif %}
+                                                    data-test="enroll"
+                                                    type="submit"
+                                                    class="btn btn-success"
                                         >
-                                            {{ caption }}
+                                            {% if available < 1 %}
+                                                Мест нет
+                                            {% else %}
+                                                Записаться
+                                            {% endif %}
+
                                         </button>
                                     </form>
 
                                     <a href="{% url 'events:event_update' event.pk %}" class="btn btn-primary
-                                     me-2 {{ attr_for_notuser }}"  >
+                                     me-2
+                                    {% if not user.is_authenticated %}
+                                    disabled
+                                    {% endif %}
+"
+
+                                    >
                                         <i class="bi bi-pencil"></i>Изменить
                                     </a>
 
                                     <form action="{% url 'events:favorite_creation' %}" method="post" class="me-2">
                                         {% csrf_token %}
                                         {{ favorite_form }}
-                                        <button {{ attr_for_notuser }} type="submit" class="btn btn-outline-danger"
-                                                title="Добавить в избранное">
+                                        <button
+                                                {% if not user.is_authenticated %}
+                                                    disabled
+                                                {% endif %}
+
+                                                    type="submit" class="btn btn-outline-danger"
+                                                    title="Добавить в избранное">
                                             <i class="bi bi-heart-fill"></i>
                                         </button>
                                     </form>
@@ -124,7 +144,11 @@
                                           required
                                 ></textarea>
                             </div>
-                            <button {{ attr_for_notuser }} type="button" class="btn btn-primary mt-3" id="btnSendReview">
+                            <button
+                                    {% if not user.is_authenticated %}
+                                        disabled
+                                    {% endif %}
+                                        type="button" class="btn btn-primary mt-3" id="btnSendReview">
                                 Отправить отзыв
                             </button>
                         </form>
