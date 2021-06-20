@@ -16,19 +16,26 @@ from django.urls import reverse_lazy
 class LoginRequiredMixin:
 
     def get(self, request, *args, **kwargs):
-
         user = request.user
-
         if not request.user.username:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Не задан user')
+        if not request.user.is_authenticated:
+            # выдается сообщение об ошибке с кодом status_code = 403:
+            return HttpResponseForbidden('Недостаточно прав')
+        return super().get(request, *args, **kwargs)
 
-
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if not request.user.username:
+            # выдается сообщение об ошибке с кодом status_code = 403:
+            return HttpResponseForbidden('Не задан user')
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
 
-        return super().get(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
+
 
 
 
@@ -137,15 +144,12 @@ class EventParticipantsView(LoginRequiredMixin, DetailView):
         enrolls = self.object.enrolls.all().order_by('user_id')
         reviews = self.object.reviews.all().values('user_id', 'rate').order_by('user_id')
 
-        i = 0
         for el in enrolls:
-            enrolls[i].review = 0
+            el.review = 0
             for rev in reviews:
                 if el.user.pk == rev['user_id']:
-                    enrolls[i].review = rev['rate']
+                    el.review = rev['rate']
                     break
-
-            i += 1
 
         context['enrolls'] = enrolls
 
