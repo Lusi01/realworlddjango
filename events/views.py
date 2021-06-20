@@ -6,7 +6,6 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpRe
 
 from events.forms import EventCreationForm, EventUpdateForm, EventEnrollForm, FavoriteCreationForm
 from events.models import Category, Event, Feature, Review, Enroll, Favorite
-from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -16,26 +15,16 @@ from django.urls import reverse_lazy
 class LoginRequiredMixin:
 
     def get(self, request, *args, **kwargs):
-        user = request.user
-        # if not request.user.username:
-        #     # выдается сообщение об ошибке с кодом status_code = 403:
-        #     return HttpResponseForbidden('Не задан user')
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        user = request.user
-        # if not request.user.username:
-        #     # выдается сообщение об ошибке с кодом status_code = 403:
-        #     return HttpResponseForbidden('Не задан user')
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
             return HttpResponseForbidden('Недостаточно прав')
-
         return super().post(request, *args, **kwargs)
-
 
 
 
@@ -61,11 +50,6 @@ def hello(request):
 
 class FavoriteCreationView(LoginRequiredMixin, CreateView):
     model = Favorite
-
-    # def post(self, request, *args, **kwargs):
-    #     if not self.request.user.username or not self.request.user.is_authenticated:
-    #         return HttpResponseForbidden('Недостаточно прав FavoriteCreationView')
-    #     return super().post(request, *args, **kwargs)
 
     form_class = FavoriteCreationForm
 
@@ -133,20 +117,26 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
 
 
-class EventParticipantsView(LoginRequiredMixin, DetailView):
-    model = Event #queryset по умолчанию
-    template_name = 'events/event_participants.html'
+class EventUpdateView(LoginRequiredMixin, UpdateView):
+    model = Event
+
+    template_name = 'events/event_update.html'
+    form_class = EventUpdateForm
+
 
     def get_context_data(self, **kwargs):
         event = self.object
         context = super().get_context_data(**kwargs)
 
         enrolls = self.object.enrolls.all().order_by('user_id')
-        reviews = self.object.reviews.all().values('user_id', 'rate').order_by('user_id')
+        reviews = self.object.reviews.all()
+        context['reviews'] = reviews
+
+        reviewlist = reviews.values('user_id', 'rate').order_by('user_id')
 
         for el in enrolls:
             el.review = 0
-            for rev in reviews:
+            for rev in reviewlist:
                 if el.user.pk == rev['user_id']:
                     el.review = rev['rate']
                     break
@@ -157,25 +147,9 @@ class EventParticipantsView(LoginRequiredMixin, DetailView):
 
 
 
-class EventReviewsView(LoginRequiredMixin, DetailView):
-    model = Event #queryset по умолчанию
-    template_name = 'events/event_reviews.html'
-
-    def get_context_data(self, **kwargs):
-        event = self.object
-        context = super().get_context_data(**kwargs)
-
-        reviews = self.object.reviews.all()
-        context['reviews'] = reviews
-
-        return context
-
-
-
 class EventDeleteView(LoginRequiredMixin, DeleteView):
 
     model = Event #queryset по умолчанию
-    template_name = 'events/event_delete.html'
 
     success_url = reverse_lazy('events:event_list')
 
@@ -186,22 +160,8 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
 
 
 
-class EventUpdateView(LoginRequiredMixin, UpdateView):
-    model = Event
-
-    template_name = 'events/event_update.html'
-    form_class = EventUpdateForm
-
-
-
 class EventEnrollView(LoginRequiredMixin, CreateView ):
     model = Enroll
-
-    # def post(self, request, *args, **kwargs):
-    #     if not self.request.user.username or not self.request.user.is_authenticated:
-    #         return HttpResponseForbidden('Недостаточно прав EventEnrollView')
-    #     return super().post(request, *args, **kwargs)
-
     form_class = EventEnrollForm
 
     def get_success_url(self):

@@ -2,28 +2,6 @@ from django import forms
 from events.models import Event, Enroll, Favorite
 
 
-class EventEnrollForm(forms.ModelForm):
-
-    class Meta:
-        model = Enroll
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget = forms.HiddenInput()
-
-    # запретить создание уже существующей записи
-    def clean(self):
-        cleaned_data = super().clean()
-        print(cleaned_data)
-
-        if Enroll.objects.filter(user=cleaned_data['user'], event=cleaned_data['event']).exists():
-            raise forms.ValidationError(f'Вы уже записаны на это событие: ')
-
-        return cleaned_data
-
-
 
 class FavoriteCreationForm(forms.ModelForm):
 
@@ -93,3 +71,25 @@ class EventUpdateForm(EventCreateUpdateForm):
         model = Event
         fields = '__all__' # если только 1 полое, то обязательно после него + запятую!
 
+
+
+class EventEnrollForm(forms.ModelForm):
+
+    class Meta:
+        model = Enroll
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget = forms.HiddenInput()
+
+    # запретить создание уже существующей записи
+    def clean(self):
+        cleaned_data = super().clean()
+        print(cleaned_data)
+
+        if Enroll.objects.filter(user=cleaned_data['user'], event=cleaned_data['event']).exists():
+            raise forms.ValidationError(f'Вы уже записаны на это событие: ')
+
+        return cleaned_data

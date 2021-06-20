@@ -17,36 +17,61 @@
             {% include "snippets/_eventmenu.html" %}
 
             <div class="col-lg-7 col-xl-9">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h3 class="mb-0">
-                            {% if event %} Редактирование события {{ event.title }}
-                            {% else %} Добавление нового события
-                            {% endif %}
-                        </h3>
-                    </div>
-                    {{ form.non_field_errors }}
-                    <form action="." method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
 
-                        {% for field in form %}
-                            <div class="mb-3">
-                                {{ field.label_tag }}
-                                {% if field.name == "date_start" %}
-                                    {{ field }}
-                                {% else %}
-                                    {{ field }}
-                                {% endif %}
+                <div class="tab-content" id="v-pills-tabContent">
+
+
+                    <div class="tab-pane fade active show" id="v-pills-edit" role="tabpanel"
+                         aria-labelledby="v-pills-edit-tab">
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h3 class="mb-0">
+                                    {% if event %} Редактирование события {{ event.title }}
+                                    {% else %} Добавление нового события
+                                    {% endif %}
+                                </h3>
                             </div>
-                            {% if field.errors %}
-                                <div class="alert alert-danger">
-                                    {{ field.errors }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                            {{ form.non_field_errors }}
+                            <form action="." method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
 
-                    </form>
+                                {% for field in form %}
+                                    <div class="mb-3">
+                                        {{ field.label_tag }}
+                                        {% if field.name == "date_start" %}
+                                            {{ field }}
+                                        {% else %}
+                                            {{ field }}
+                                        {% endif %}
+                                    </div>
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="v-pills-participants" role="tabpanel"
+                         aria-labelledby="v-pills-participants-tab">
+                        {% include "events/event_participants.html" %}
+                    </div>
+
+                    <div class="tab-pane fade" id="v-pills-review" role="tabpanel"
+                         aria-labelledby="v-pills-review-tab">
+                        {% include "events/event_reviews.html" %}
+                    </div>
+
+                      <div class="tab-pane fade" id="v-pills-danger-zone" role="tabpanel"
+                         aria-labelledby="v-pills-danger-zone-tab">
+                        {% include "events/event_delete.html" %}
+                    </div>
 
                 </div>
             </div>

@@ -8,31 +8,32 @@
             <div class="nav flex-column nav-pills"
                  id="v-pills-tab" role="tablist"
                  aria-orientation="vertical">
+
                 <a class="nav-link mb-2 "
-                        {% if event %} href={{ event.get_update_url }}
-                           {% else %} href="{% url 'events:create_event' %}"
-                        {% endif %}
+                   href="#v-pills-edit" role="tab" aria-controls="v-pills-edit"
+                   aria-selected="true"
+                   id="v-pills-edit-tab" data-bs-toggle="pill"
                 >
                     <i class="bi bi-pencil-square"></i>Редактировать
                 </a>
                 <a class="nav-link mb-2"
-                        {% if event %} href="{% url 'events:event_participants' event.pk %}"
-                        {% else %} href="#"
-                        {% endif %}
+                   id="v-pills-participants-tab" data-bs-toggle="pill"
+                   href="#v-pills-participants" role="tab" aria-controls="v-pills-participants"
+                   aria-selected="false"
                 >
                     <i class="bi bi-people-fill"></i>Участники
                 </a>
                 <a class="nav-link mb-2"
-                        {% if event %} href="{% url 'events:event_reviews' event.pk %}"
-                        {% else %} href="#"
-                        {% endif %}
+                   id="v-pills-review-tab" data-bs-toggle="pill"
+                   href="#v-pills-review" role="tab" aria-controls="v-pills-review"
+                   aria-selected="false"
                 >
                     <i class="bi bi-chat-left-dots"></i>Отзывы
                 </a>
                 <a class="nav-link"
-                        {% if event %} href={{ event.get_delete_url }}
-                           {% else %} href="#"
-                        {% endif %}
+                   id="v-pills-danger-zone-tab" data-bs-toggle="pill"
+                   href="#v-pills-danger-zone" role="tab" aria-controls="v-pills-danger-zone"
+                   aria-selected="false"
                 >
                     <i class="bi bi-exclamation-triangle-fill"></i>Danger zone
                 </a>
@@ -41,22 +42,4 @@
     </div>
 </div>
 
-<script>
-    {#  для добавления класса 'active' к выбранному пункту меню #}
-
-    function ready() {
-        try {
-            var el = document.getElementById('v-pills-tab').getElementsByTagName('a');
-            var url = document.location.href;
-            for (var i = 0; i < el.length; i++) {
-                if (url == el[i].href) {
-                    el[i].className += ' active';
-                }
-            }
-        } catch (e) {
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", ready)
-</script>
 <!-- End EVENT_MENU -->

@@ -1,46 +1,23 @@
-{% extends "__base.html" %}
-{% load static %}
-{% block title %}Real World Django -
-    {% if event %} Редактирование события
-    {% else %} Добавление события
-    {% endif %}
-{% endblock %}
-
-
-<!-- Start MAIN_CONTAINER -->
-{% block content %}
-    <!-- Start CONTAINER_BAR -->
-    <div class="container-fluid mt-3">
-
-        <div class="row">
-            {% include "snippets/_eventmenu.html" %}
-
-            <div class="col-lg-7 col-xl-9">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Отзывы на событие {{ event.title }} </h5>
-                    </div>
-
-                    {% for review in reviews %}
-
-                        <div class="card-body">
-                            <!-- Start Review item -->
-                            <h5 class="me-2" data-test="review_user">
-                                {{ review.user.username }}
-                                <span class="badge bg-warning" data-test="review_rate">
-                                            {{ review.rate }}
-                                        </span>
-                            </h5>
-                            <p class="my-3" data-test="review_text">{{ review.text }}</p>
-                            <p class="mb-4" data-test="review_created">{{ review.created|date:"d.m.Y" }}</p>
-                            <!-- End Review item -->
-                        </div>
-                    {% endfor %}
-
-                </div>
-            </div>
-        </div>
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Отзывы на событие {{ event.title }} </h5>
     </div>
 
-{% endblock %}
+    {% for review in reviews %}
+
+        <div class="card-body">
+            <!-- Start Review item -->
+            <h5 class="me-2" data-test="review_user">
+                {{ review.user.username }}
+                <span class="badge bg-warning" data-test="review_rate">
+                                            {{ review.rate }}
+                                        </span>
+            </h5>
+            <p class="my-3" data-test="review_text">{{ review.text }}</p>
+            <p class="mb-4" data-test="review_created">{{ review.created|date:"d.m.Y" }}</p>
+            <!-- End Review item -->
+        </div>
+    {% endfor %}
+
+</div>
 
