@@ -23,17 +23,21 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path('', include('main.urls')),
     path('events/', include('events.urls')),
+
+    path('accounts/', include('accounts.urls')),
+    # path('allauth/accounts/', include('allauth.urls')),
 ]
 
 urlpatterns += [
     path('api/events/', include('events.urls_api')),
 ]
 
-#Add Django site authentication urls (for login, logout, password management)
-urlpatterns += [
-    path('accounts/', include('django.contrib.auth.urls')),
-]
+# #Add Django site authentication urls (for login, logout, password management)
+# urlpatterns += [
+#     path('accounts/', include('django.contrib.auth.urls')),
+# ]
 
 if settings.DEBUG:
     from django.conf.urls.static import static

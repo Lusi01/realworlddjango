@@ -141,6 +141,13 @@ code {
     left: 0;
 }
 
+.background {
+    min-height: 450px;
+    background-image: url(../images/background/bg-1.jpg)
+}
+
+
+
 .slimScrollBar {
     z-index: 0 !important;
 }

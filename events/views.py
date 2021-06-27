@@ -9,11 +9,11 @@ from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 
-class LoginRequiredMixin:
-
+class MyLoginRequiredMixin:
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             # выдается сообщение об ошибке с кодом status_code = 403:
@@ -50,7 +50,6 @@ def hello(request):
 
 class FavoriteCreationView(LoginRequiredMixin, CreateView):
     model = Favorite
-
     form_class = FavoriteCreationForm
 
     def get_success_url(self):
@@ -99,7 +98,6 @@ class EventListView(ListView):
 
 
 class EventCreateView(LoginRequiredMixin, CreateView):
-
     model = Event
     template_name = 'events/event_update.html'
     form_class = EventCreationForm
@@ -119,10 +117,8 @@ class EventCreateView(LoginRequiredMixin, CreateView):
 
 class EventUpdateView(LoginRequiredMixin, UpdateView):
     model = Event
-
     template_name = 'events/event_update.html'
     form_class = EventUpdateForm
-
 
     def get_context_data(self, **kwargs):
         event = self.object
@@ -148,9 +144,7 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class EventDeleteView(LoginRequiredMixin, DeleteView):
-
     model = Event #queryset по умолчанию
-
     success_url = reverse_lazy('events:event_list')
 
     def delete(self, request, *args, **kwargs):
@@ -191,7 +185,6 @@ class EventDetailView(DetailView):
             'user': self.request.user,
             'event': self.object,
             #'created': created,
-
         })
         context['favorite_form'] = FavoriteCreationForm(initial={
             'user': self.request.user,

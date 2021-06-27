@@ -19,17 +19,30 @@
 
 </head>
 <body>
-<div class="vertical-layout">
-    {% include "snippets/_leftheader.html" %}
 
-    <div class="rightbar">
-        {% include "snippets/_rightheader.html" %}
-        {% include "snippets/_messages.html" %}
-        {% block content %}{% endblock %}
+
+{% if not special_content %}
+
+    <div class="vertical-layout">
+        {% include "snippets/_leftheader.html" %}
+        <div class="rightbar">
+            {% include "snippets/_rightheader.html" %}
+            {% include "snippets/_messages.html" %}
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
+{% else %}
+{#    <div class="rightbar">#}
+        {% include "snippets/_rightheader.html" %}
+        {% include "snippets/_messages.html" %}
+        {% block special_content %}{% endblock %}
+{#    </div>#}
+
+{% endif %}
+
     {% include "snippets/_footer.html" %}
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"

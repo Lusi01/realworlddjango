@@ -1,0 +1,122 @@
+{% extends "__base.html" %}
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+    <!-- Start CONTAINER_BAR -->
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <img src="{{ profile.avatar_url }}" class="img-fluid" alt="{{ profile }}"
+                             style="width: 250px">
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Основная информация</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="." method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+
+                            <button type="submit" class="btn btn-primary">
+                                Сохранить
+                            </button>
+                            <a href="{% url 'accounts:logout' %}" class="btn btn-outline-danger">Выйти</a>
+                        </form>
+                    </div>
+
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Мои события</h5>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Событие</th>
+                                    <th scope="col">Дата старта</th>
+                                    <th scope="col">Моя оценка</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for enroll in enrolls_list %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>
+                                            <a href="{{ enroll.event.get_absolute_url }}" data-test="event">
+                                                {{ enroll.event }}
+                                            </a>
+                                        </td>
+                                        <td data-test="event_start">{{ enroll.created|date:"d.m.Y" }}</td>
+                                        <td data-test="event_rate">{{ enroll.rate }}</td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Мои отзывы</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Событие</th>
+                                    <th scope="col">Отзыв</th>
+                                    <th scope="col">Оценка</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for review in reviews_list %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>
+                                            <a href="{{ review.event.get_absolute_url }}" data-test="event">
+                                                {{ review.event }}
+                                            </a>
+                                        </td>
+                                        <td data-test="review_text">
+                                            {{ review.text }}
+                                        </td>
+                                        <td data-test="review_rate">{{ review.rate }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End CONTAINER_BAR -->
+
+{% endblock %}
+
