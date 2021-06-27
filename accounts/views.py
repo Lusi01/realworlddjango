@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, views as auth_views
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
@@ -36,10 +37,21 @@ class ProfileUpdateView(UpdateView):
     template_name = 'accounts/profile_detail.html'
 
     def get_object(self, queryset=None):
+        if self.request.user.id == None:
+           return None
+
         pk = self.request.user.pk
         self.kwargs['pk'] = pk
         profile = super().get_object(queryset)
         return profile
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.id == None:
+            redirect_url = reverse_lazy('accounts:sign_in')
+            return HttpResponseRedirect(redirect_url)
+
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         #profile = self.object

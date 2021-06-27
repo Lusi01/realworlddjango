@@ -68,6 +68,7 @@ class FavoriteCreationView(LoginRequiredMixin, CreateView):
         redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
         return HttpResponseRedirect(redirect_url)
 
+
     def form_valid(self, form):
         messages.success(self.request,
                          f'Событие добавлено в избранное')
