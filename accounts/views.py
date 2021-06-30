@@ -26,10 +26,10 @@ class CustomSignUpView(CreateView):
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
-    # def get_object(self, queryset=None):
-    #     if self.request.user.is_authenticated:
-    #         redirect_url = reverse_lazy('main:index')
-    #         return HttpResponseRedirect(redirect_url)
+    def get_object(self, queryset=None):
+        if self.request.user.is_authenticated:
+            redirect_url = reverse_lazy('main:index')
+            return HttpResponseRedirect(redirect_url)
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -102,10 +102,10 @@ class CustomLoginView(auth_views.LoginView):
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
-    # def get_object(self, queryset=None):
-    #     if self.request.user.is_authenticated:
-    #         redirect_url = reverse_lazy('main:index')
-    #         return HttpResponseRedirect(redirect_url)
+    def get_object(self, queryset=None):
+        if self.request.user.is_authenticated:
+            redirect_url = reverse_lazy('main:index')
+            return HttpResponseRedirect(redirect_url)
 
 
 
