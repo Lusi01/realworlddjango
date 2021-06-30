@@ -67,7 +67,7 @@
                                                 {{ enroll.event }}
                                             </a>
                                         </td>
-                                        <td data-test="event_start">{{ enroll.created|date:"d.m.Y" }}</td>
+                                        <td data-test="event_start">{{ enroll.event.date_start|date:"d.m.Y" }}</td>
                                         <td data-test="event_rate">{{ enroll.rate }}</td>
                                     </tr>
                                 {% endfor %}
@@ -98,7 +98,7 @@
                                     <tr>
                                         <th scope="row">{{ forloop.counter }}</th>
                                         <td>
-                                            <a href="{{ review.event.get_absolute_url }}" data-test="event">
+                                            <a href="{{ review.event.get_absolute_url }}" data-test="review_event">
                                                 {{ review.event }}
                                             </a>
                                         </td>

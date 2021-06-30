@@ -10,8 +10,9 @@ urlpatterns = [
     path('create/', views.EventCreateView.as_view(), name='create_event'),
     path('event-update/<int:pk>/', views.EventUpdateView.as_view(), name='event_update'),
     path('event-delete/<int:pk>/', views.EventDeleteView.as_view(), name='event_delete'),
-    path('event-enroll/', require_POST(views.EventEnrollView.as_view()), name='event_enroll'),
 
+    path('enroll-creation/', require_POST(views.EnrollCreationView.as_view()), name='enroll_creation'),
     path('favorite-creation/', require_POST(views.FavoriteCreationView.as_view()), name='favorite_creation'),
+
     path('error/', views.error, name='error_message')
 ]

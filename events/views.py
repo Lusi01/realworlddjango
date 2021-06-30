@@ -4,7 +4,7 @@ import datetime
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpResponseForbidden
 
-from events.forms import EventCreationForm, EventUpdateForm, EventEnrollForm, FavoriteCreationForm
+from events.forms import EventCreationForm, EventUpdateForm, EnrollCreationForm, FavoriteCreationForm
 from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -45,34 +45,6 @@ def index(request):
 
 def hello(request):
     return HttpResponse('Hello, World!')
-
-
-
-class FavoriteCreationView(LoginRequiredMixin, CreateView):
-    model = Favorite
-    form_class = FavoriteCreationForm
-
-    def get_success_url(self):
-        return self.object.event.get_absolute_url()
-
-    def form_invalid(self, form):
-        messages.error(self.request, form.non_field_errors())
-        event = form.cleaned_data.get('event', None)
-
-        user = form.cleaned_data.get('user', None)
-        if not user:
-            return HttpResponseForbidden('Недостаточно прав')
-
-        if not event:
-            event = get_object_or_404(Event, pk=form.data.get('event'))
-        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
-        return HttpResponseRedirect(redirect_url)
-
-
-    def form_valid(self, form):
-        messages.success(self.request,
-                         f'Событие добавлено в избранное')
-        return super().form_valid(form)
 
 
 
@@ -155,9 +127,9 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
 
 
 
-class EventEnrollView(LoginRequiredMixin, CreateView ):
+class EnrollCreationView(LoginRequiredMixin, CreateView ):
     model = Enroll
-    form_class = EventEnrollForm
+    form_class = EnrollCreationForm
 
     def get_success_url(self):
         return self.object.event.get_absolute_url()
@@ -168,8 +140,50 @@ class EventEnrollView(LoginRequiredMixin, CreateView ):
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        # messages.error(self.request, form.non_field_errors())
+        # return super().form_invalid(form)
+
         messages.error(self.request, form.non_field_errors())
-        return super().form_invalid(form)
+        event = form.cleaned_data.get('event', None)
+        user = form.cleaned_data.get('user', None)
+        if not user:
+            return HttpResponseForbidden('Недостаточно прав')
+
+        if not event:
+            event = get_object_or_404(Event, pk=form.data.get('event'))
+        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
+        return HttpResponseRedirect(redirect_url)
+
+
+
+
+class FavoriteCreationView(LoginRequiredMixin, CreateView):
+    model = Favorite
+    form_class = FavoriteCreationForm
+
+    def get_success_url(self):
+        return self.object.event.get_absolute_url()
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.non_field_errors())
+        event = form.cleaned_data.get('event', None)
+
+        user = form.cleaned_data.get('user', None)
+        if not user:
+            return HttpResponseForbidden('Недостаточно прав')
+
+        if not event:
+            event = get_object_or_404(Event, pk=form.data.get('event'))
+        redirect_url = event.get_absolute_url() if event else reverse_lazy('events:event_list')
+        return HttpResponseRedirect(redirect_url)
+
+
+    def form_valid(self, form):
+        messages.success(self.request,
+                         f'Событие добавлено в избранное')
+        return super().form_valid(form)
+
+
 
 
 
@@ -182,7 +196,7 @@ class EventDetailView(DetailView):
 
         context = super().get_context_data(**kwargs)
         context['reviews'] = self.object.reviews.all()
-        context['enrolls_form'] = EventEnrollForm(initial={
+        context['enroll_form'] = EnrollCreationForm(initial={
             'user': self.request.user,
             'event': self.object,
             #'created': created,
