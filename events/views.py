@@ -59,8 +59,6 @@ class EventListView(ListView):
     context_object_name = 'event_objects'
     paginate_by = 8
 
-# http://127.0.0.1:8000/events/list/?page=2&category=&date_start=&date_end=&is_private=on&is_available=on
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filter_form'] = EventFilterForm(self.request.GET)
@@ -69,12 +67,7 @@ class EventListView(ListView):
     def get_queryset(self):
 
         queryset = super().get_queryset()
-        #queryset = queryset.select_related('category').prefetch_related('enrolls', 'features').with_counts()
-        #queryset = queryset.select_related('category').prefetch_related('enrolls', 'features').all()
-        # queryset = queryset.select_related('category')
-        # queryset = queryset.prefetch_related('enrolls', 'features').with_counts()
         queryset = queryset.EvQuSet()
-
 
           # обработка кнопки "Сбросить"
         if self.request.GET.get('Delete', ''):
@@ -82,7 +75,7 @@ class EventListView(ListView):
             if 'filter' in self.request.session:
                 del self.request.session['filter']
                 self.request.session.modified = True
-            self.request.GET = QueryDict()#'', mutable=True)
+            self.request.GET = QueryDict()
             return queryset.order_by('-pk')
 
         # начало обработки запроса GET для запоминариня фильтров
@@ -164,31 +157,14 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
         event = self.object
         context = super().get_context_data(**kwargs)
 
-
-        # reviews = self.object.reviews.all()
-        # context['reviews'] = reviews
-        #
-        # reviewlist = reviews.values('user_id', 'rate').order_by('user_id')
-        # enrolls = self.object.enrolls.all().order_by('user_id')
-        # for el in enrolls:
-        #     el.review = 0
-        #     for rev in reviewlist:
-        #         if el.user.pk == rev['user_id']:
-        #             el.review = rev['rate']
-        #             break
-        #
-        # context['enrolls'] = enrolls
-
         return context
 
     def get_queryset(self):
 
         pk = self.kwargs.get(self.pk_url_kwarg)
         queryset = super().get_queryset().filter(pk=pk)
-        #queryset = queryset.select_related('category').prefetch_related('enrolls__user', 'features',
-        #             'reviews__user').with_counts()
         queryset = queryset.EvQuSet()
-        return queryset #.order_by('reviews__user.user_id')
+        return queryset
 
 
 
@@ -216,9 +192,6 @@ class EnrollCreationView(LoginRequiredMixin, CreateView ):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # messages.error(self.request, form.non_field_errors())
-        # return super().form_invalid(form)
-
         messages.error(self.request, form.non_field_errors())
         event = form.cleaned_data.get('event', None)
         user = form.cleaned_data.get('user', None)
@@ -297,13 +270,8 @@ class EventDetailView(DetailView):
     def get_queryset(self):
         pk = self.kwargs.get(self.pk_url_kwarg)
         queryset = super().get_queryset().filter(pk=pk)
-        # queryset = queryset.select_related('category').prefetch_related('enrolls', 'features',
-        #             'reviews__user').with_counts()
         queryset = queryset.EvQuSet()
 
-        #
-        # print('поля: __________________')
-        # print(queryset.values())
         return queryset
 
 
