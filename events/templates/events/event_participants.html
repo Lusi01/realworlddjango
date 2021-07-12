@@ -15,13 +15,12 @@
                 </thead>
                 <tbody>
 
-                {% for enr in enrolls %}
+                {% for enroll in event.enrolls.all %}
                     <tr>
                         <th data-test="enroll_counter">{{ forloop.counter }}</th>
-                        <td data-test="enroll_user">{{ enr.user.username }}</td>
-                        <td data-test="enroll_email">{{ enr.user.email }}</td>
-
-                        <td data-test="enroll_rate">{{ enr.review }}</td>
+                        <td data-test="enroll_user">{{ enroll.user.username }}-{{ enroll.user.id }}</td>
+                        <td data-test="enroll_email">{{ enroll.user.email }}</td>
+                        <td data-test="enroll_rate">{{ enroll.get_rate|default:"0" }}</td>
 
                     </tr>
                 {% endfor %}

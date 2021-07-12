@@ -1,14 +1,53 @@
 from django import forms
-from events.models import Event, Enroll, Favorite
+from events.models import Event, Enroll, Favorite, Category, Feature
+
+
+class EventFilterForm(forms.Form):
+    category = forms.ModelChoiceField(
+                    label='Категория',
+                    queryset=Category.objects.all(),
+                    required=False,)
+    features = forms.ModelMultipleChoiceField(
+                    label='Свойства',
+                    queryset=Feature.objects.all(),
+                    required=False)
+    date_start = forms.DateTimeField(
+                    label='Дата начала',
+                    widget=forms.DateInput(format="%Y-%m-%d", attrs={'type': 'date'}),
+                    required=False)
+    date_end = forms.DateTimeField(
+                    label='Дата конца',
+                    widget=forms.DateInput(format="%Y-%m-%d", attrs={'type': 'date'}),
+                    required=False)
+    is_private = forms.BooleanField(
+                    label='Приватное',
+                    widget=forms.CheckboxInput(attrs={'type': 'checkbox'}),
+                    required=False)
+    is_available = forms.BooleanField(
+                    label='Есть места',
+                    widget=forms.CheckboxInput(attrs={'type': 'checkbox'}),
+                    required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'special'})
+
+        self.fields['category'].widget.attrs.update({'class': 'form-control',})
+        self.fields['features'].widget.attrs.update({'class': 'form-control', 'multiple': True})
+        self.fields['date_start'].widget.attrs.update({'class': 'form-control mx-1 ',})
+        self.fields['date_end'].widget.attrs.update({'class': 'form-control mx-1 '})
+        self.fields['is_private'].widget.attrs.update({'class': 'form-check', 'default': False })
+        self.fields['is_available'].widget.attrs.update({'class': 'form-check ', 'default': False})
+
 
 
 
 class EventCreateUpdateForm(forms.ModelForm):
 
-    date_start = forms.DateTimeField(label='Дата начала',
-            widget=forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
-            attrs={'type': 'datetime-local'}),
-            )
+    date_start = forms.DateTimeField(
+                    label='Дата начала',
+                    widget=forms.DateTimeInput(format="%Y-%m-%dT%H:%M",attrs={'type': 'datetime-local'}),)
 
     class Meta:
         model = Event

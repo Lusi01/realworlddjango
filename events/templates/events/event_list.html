@@ -10,63 +10,46 @@
             <div class="col">
                 <div class="card shadow">
                     <div class="card-body">
-                        <form>
+                        <form action="." method="get">
                             <div class="row row-cols-lg-auto g-3 align-items-start">
-                                <div class="col-12">
-                                    <label for="category" class="form-label">Категория:</label>
-                                    <select class="form-select" id="category">
-                                        <option selected="">....................</option>
-                                        {% for cat in category %}
-                                            <option value={{ cat.id }}>{{ cat.title }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <label for="features" class="form-label">Свойства:</label>
-                                    <select class="form-select" multiple="" id="features">
-                                        {% for feat in feature %}
-                                            <option value={{ feat.id }}>{{ feat.title }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-12 d-md-flex">
-                                    <div class="mx-1">
-                                        <label for="id_date_start" class="form-label">Дата начала</label>
-                                        <input type="date" class="form-control" id="id_date_start">
-                                    </div>
-                                    <div class="mx-1">
-                                        <label for="id_date_end" class="form-label">Дата окончания</label>
-                                        <input type="date" class="form-control" id="id_date_end">
-                                    </div>
-                                </div>
+                                {% for field in filter_form %}
+                                    {% if field.name != 'is_private' and field.name != 'is_available' %}
+                                        <div class="col-12" style="display: grid; width: 23%">
+                                            <label for="id_{{ field.name }}">{{ field.label }}</label>
+                                            {{ field }}
+                                        </div>
+                                    {% endif %}
+
+
+                                    {% if field.name == 'is_private' or field.name == 'is_available' %}
+                                        <div class="col-12 d-md-flex" style="display: flex; width: 13%; ">
+                                            <label for="id_{{ field.name }}" style="margin-right: .5rem"
+                                            >{{ field.label }}</label>
+                                            {{ field }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                            <div class="row mt-3">
-                                <div class="col-12 d-md-flex">
-                                    <div class="form-check me-3">
-                                        <input class="form-check-input" type="checkbox" value="" id="is_private">
-                                        <label class="form-check-label" for="is_private">
-                                            Private
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="is_available">
-                                        <label class="form-check-label" for="is_available">
-                                            Есть места
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12 mt-3">
-                                    <button type="submit" class="btn btn-primary">Фильтровать</button>
-                                    <button type="submit" class="btn btn-outline-danger">Сбросить</button>
-                                </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">Фильтровать</button>
+
+                                <input class="btn btn-outline-danger" type="submit" value="Сбросить"
+                                       name="Delete"/>
                             </div>
+
+
                         </form>
+
+                        <p>Выбрано записей: {{ paginator.count }}</p>
+
                     </div>
                 </div>
+
             </div>
         </div>
 
         {% include 'snippets/_pagination.html' %}
+
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4">
             {% for event in event_objects %}
@@ -78,11 +61,11 @@
                             </span>{% endif %}
                         </div>
                         <div class="card-body">
-                            <h3>{{ event.display_enroll_count }} из {{ event.participants_number }}</h3>
+                            <h3>{{ event.enrolls.count|default:"0" }} из {{ event.participants_number }}</h3>
                             <p>участников</p>
                             <ul class="py-2">
-                                {% for el in event.features_list %}
-                                    <li>{{ el.title }}</li>
+                                {% for el in event.features.all %}
+                                    <li>{{ el }}</li>
                                 {% endfor %}
                             </ul>
                             <p class="text-black">

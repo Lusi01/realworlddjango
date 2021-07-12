@@ -1119,3 +1119,8 @@ code {
 .errorlist > li::before {
         content: " - "
     }
+
+.subscribers {
+    margin-left: 60px;
+    margin-right: 60px;
+}

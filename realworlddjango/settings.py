@@ -32,6 +32,8 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#SESSION_SAVE_EVERY_REQUEST = True
+
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = '/'
@@ -70,14 +72,18 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount',
     # 'allauth.socialaccount.providers.github',
 
+    'debug_toolbar',
+
     # project apps
     'main.apps.MainConfig',
     'events.apps.EventsConfig',  #'events',
     'accounts.apps.AccountsConfig',
-
+    'mail.apps.MailConfig',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -178,3 +184,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 import django_heroku
 django_heroku.settings(locals())
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]

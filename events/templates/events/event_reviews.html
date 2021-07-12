@@ -3,7 +3,7 @@
         <h5 class="card-title mb-0">Отзывы на событие {{ event.title }} </h5>
     </div>
 
-    {% for review in reviews %}
+    {% for review in event.reviews.all %}
 
         <div class="card-body">
             <!-- Start Review item -->

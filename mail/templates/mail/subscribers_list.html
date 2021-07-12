@@ -1,0 +1,99 @@
+{% extends "__base.html" %}
+{% block title %}Real World Django - отправка писем{% endblock %}
+
+{% block content %}
+    {#    Start MAIN CONTAINER#}
+    <div class="subscribers">
+
+        {% with "Отправка писем" as header %}
+{#            {% include "snippets/_top_bar.html" %}#}
+        {% endwith %}
+
+        {#    Start CONTAINER_BAR#}
+        <div class="container mt-3">
+            <h2>Подписчики</h2>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                    <form action="{% url 'mail:subscriber_create' %}" method="post" class="mb-5">
+                        {% csrf_token %}
+                        {{ subscriber_form.as_p }}
+                        <button type="submit" class="btn btn-primary mt-2">Добавить подписчика</button>
+                    </form>
+                </div>
+                <div class="col-lg-6">
+                    <form class="mb-5" id="formLetter">
+                        {% csrf_token %}
+                        {{ letter_form.as_p }}
+                        <button type="submit" class="btn btn-primary mt-2" id="btnCreateLetters">Создать письма</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Количество писем</th>
+                            <th scope="col">Отправленных</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for subscriber in object_list %}
+                            <tr data-tr-email="{{ subscriber.email }}">
+                                <td data-td-name="counter">{{ forloop.counter }}</td>
+                                <td data-td-name="email">
+                                    <span>{{ subscriber.email }}</span>
+                                    <input type="hidden" name="email" value="{{ subscriber.email }}" form="formLetter">
+                                </td>
+                                <td data-td-name="letterCount">{{ subscriber.letter_count }}</td>
+                                <td data-td-name="sentLetterCount">{{ subscriber.sent_letter_count }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success my-2" id="btnSendLetters" form="formLetter">
+                        Отправить письма
+                    </button>
+                    <div class="alert alert-primary my-2 d-none" role="alert" id="alertSendingProcess">
+                        Выполняется отправка писем
+                    </div>
+                    <div class="alert alert-success my-2 d-none" role="alert" id="alertSendingDone">
+                        Отправка писем завершена
+                    </div>
+                </div>
+            </div>
+        </div>
+        {#    End CONTAINER_BAR#}
+    </div>
+    {#    End MAIN_CONTAINER#}
+
+    <script>
+        function readySubscribers() {
+
+            const urlCreateLetters = "{% url 'api_mail:create_letters' %}"
+            const urlSendLetters = ""
+            const urlGetLetters = ""
+
+            let btnCreateLetters = document.getElementById('btnCreateLetters')
+            if (btnCreateLetters) {
+                btnCreateLetters.onclick = () => {
+                    createLetters(urlCreateLetters)
+                }
+            }
+
+            let btnSendLetters = document.getElementById('btnSendLetters')
+            if (btnSendLetters) {
+                btnSendLetters.onclick = () => {
+                    sendLetters(urlSendLetters, urlGetLetters)
+                }
+            }
+
+        }
+
+        document.addEventListener("DOMContentLoaded", readySubscribers)
+
+    </script>
+
+
+{% endblock %}

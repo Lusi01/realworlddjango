@@ -5,87 +5,87 @@
 {% block special_content %}
 
 
-{#{% static 'images/favicon.png' %#}
-<!-- Start WRAPPER -->
-<div class="container-fluid">
-    <div class="row align-items-center justify-content-center background">
-        <div class="col-auto">
-            <h1 class="text-white shadow-lg rounded p-4" style="font-size: 4.3rem">Выбери свое событие</h1>
+    {#{% static 'images/favicon.png' %#}
+    <!-- Start WRAPPER -->
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center background">
+            <div class="col-auto">
+                <h1 class="text-white shadow-lg rounded p-4" style="font-size: 4.3rem">Выбери свое событие</h1>
+            </div>
         </div>
     </div>
-</div>
-<!-- End WRAPPER -->
+    <!-- End WRAPPER -->
 
-<!-- Start EVENTS -->
-<div class="container-fluid bg-white py-5 my-5">
-    <div class="py-5">
-        <p class="h1 text-center">Самое <span class="text-info"><u>интересное</u></span></p>
-        <div class="row row-cols-1 row-cols-lg-3 row-cols-xxl-4 justify-content-center g-4 mt-4">
+    <!-- Start EVENTS -->
+    <div class="container-fluid bg-white py-5 my-5">
+        <div class="py-5">
+            <p class="h1 text-center">Самое <span class="text-info"><u>интересное</u></span></p>
+            <div class="row row-cols-1 row-cols-lg-3 row-cols-xxl-4 justify-content-center g-4 mt-4">
 
-            {% for event in event_list %}
-            <!-- Start EVENT_ITEM -->
-            <div class="col" data-test="event">
-                <div class="card mb-3 h-100 shadow">
-                    <div class="card-body">
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="{{ event.logo_url }}" alt="{{ event }}" class="card-img">
+                {% for event in event_list %}
+                    <!-- Start EVENT_ITEM -->
+                    <div class="col" data-test="event">
+                        <div class="card mb-3 h-100 shadow">
+                            <div class="card-body">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <img src="{{ event.logo_url }}" alt="{{ event }}" class="card-img">
+                                    </div>
+                                    <div class="col-md-8 ps-lg-3">
+                                        <h5 class="card-title">{{ event.title }}</h5>
+                                        <p class="card-text">{{ event.description }}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted" data-test="event_start">
+                                                {{ event.date_start|date:"j E Y" }}
+                                            </small>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-8 ps-lg-3">
-                                <h5 class="card-title">{{ event.title}}</h5>
-                                <p class="card-text">{{ event.description }}</p>
-                                <p class="card-text">
-                                    <small class="text-muted" data-test="event_start">
-                                        {{event.date_start|date:"j E Y" }}
-                                    </small>
-                                </p>
+                            <div class="card-footer">
+                                <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary">Подробее</a>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary">Подробее</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            <!-- End EVENT_ITEM -->
+                {% endfor %}
+                <!-- End EVENT_ITEM -->
 
-        </div>
-        <div class="text-center mt-5">
-            <a class="btn btn-outline-primary" href={% url 'events:event_list' %} >Смотреть все</a>
+            </div>
+            <div class="text-center mt-5">
+                <a class="btn btn-outline-primary" href={% url 'events:event_list' %}>Смотреть все</a>
+            </div>
         </div>
     </div>
-</div>
-<!-- End EVENTS -->
+    <!-- End EVENTS -->
 
-<!-- Start REVIEWS -->
-<div class="container-fluid bg-white py-5 my-5">
-    <div class="py-5">
-        <p class="h1 text-center">Отзывы</p>
-        <div class="row row-cols-1 row-cols-lg-3 row-cols-xxl-4 justify-content-center g-4 mt-4">
+    <!-- Start REVIEWS -->
+    <div class="container-fluid bg-white py-5 my-5">
+        <div class="py-5">
+            <p class="h1 text-center">Отзывы</p>
+            <div class="row row-cols-1 row-cols-lg-3 row-cols-xxl-4 justify-content-center g-4 mt-4">
 
-            {% for review in review_list %}
-            <!-- Start REVIEW_ITEM -->
-            <div class="col" data-test="review">
-                <div class="card rounded bg-light pt-4 h-100 text-center">
-                    <img src="/static/images/svg-icon/rating.svg" class="card-img-top" alt="{{ review }}"
-                         style="max-height: 5rem">
-                    <div class="card-body">
-                        <p class="card-text" data-test="review_text">
-                            {{ review.text|truncatechars:200 }}
-                        </p>
+                {% for review in review_list %}
+                    <!-- Start REVIEW_ITEM -->
+                    <div class="col" data-test="review">
+                        <div class="card rounded bg-light pt-4 h-100 text-center">
+                            <img src="/static/images/svg-icon/rating.svg" class="card-img-top" alt="{{ review }}"
+                                 style="max-height: 5rem">
+                            <div class="card-body">
+                                <p class="card-text" data-test="review_text">
+                                    {{ review.text|truncatechars:200 }}
+                                </p>
+                            </div>
+                            <div class="card-footer text-center fw-bold">
+                                {{ review.user.first_name }} {{ review.user.last_name }}
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer text-center fw-bold">
-                       {{ review.user.first_name }} {{ review.user.last_name }}
-                    </div>
-                </div>
+                    <!-- End REVIEW_ITEM -->
+                {% endfor %}
+
             </div>
-            <!-- End REVIEW_ITEM -->
-            {% endfor %}
-
         </div>
     </div>
-</div>
-<!-- End REVIEWS -->
+    <!-- End REVIEWS -->
 
 {% endblock %}

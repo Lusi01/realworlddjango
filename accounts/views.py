@@ -11,7 +11,6 @@ from accounts.forms import (CustomUserCreationForm, ProfileUpdateForm,
 from accounts.models import Profile
 
 
-
 class CustomSignUpView(CreateView):
     model = User
     template_name = 'accounts/registration/signup.html'
@@ -33,9 +32,6 @@ class CustomSignUpView(CreateView):
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        #username = form.cleaned_data['username']
-        #password = form.cleaned_data['password1']
-        #user = authenticate(self.request, username=username, password=password)
         user = self.object
         if user is not None:
             login(self.request, user)
@@ -47,13 +43,15 @@ class ProfileUpdateView(UpdateView):
     model = Profile
     form_class = ProfileUpdateForm
     template_name = 'accounts/profile_detail.html'
+    context_object_name = 'profile_objects'
 
     def get_object(self, queryset=None):
-        if self.request.user.id == None:
-           return None
-
         pk = self.request.user.pk
         self.kwargs['pk'] = pk
+
+        queryset = super().get_queryset().filter(pk=pk)
+        queryset = queryset.select_related('user').prefetch_related('user__enrolls__event', 'user__reviews__event')
+
         profile = super().get_object(queryset)
         return profile
 
@@ -62,25 +60,14 @@ class ProfileUpdateView(UpdateView):
             redirect_url = reverse_lazy('accounts:sign_in')
             return HttpResponseRedirect(redirect_url)
 
-        self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
+
     def get_context_data(self, **kwargs):
-        #profile = self.object
+        profile = self.object
+
         context = super().get_context_data(**kwargs)
         context['title_profile'] = True
-        user = self.object.user
-        enrolls_list = user.enrolls.all().order_by('created')
-        reviews_list = user.reviews.all().order_by('created')
-        context['reviews_list'] = reviews_list
-
-        for el in enrolls_list:
-            el.rate = '--'
-            for rev in reviews_list:
-                if el.event == rev.event:
-                    el.rate = rev.rate
-                    break
-        context['enrolls_list'] = enrolls_list
         return context
 
     def form_valid(self, form):
@@ -115,7 +102,6 @@ class CustomPasswordResetView(auth_views.PasswordResetView):
     email_template_name = 'accounts/registration/password_reset_email.txt'
     subject_template_name = 'accounts/registration/password_reset_subject.txt'
     success_url = reverse_lazy('accounts:password_reset_done')
-    # html_email_template_name = 'accounts/registration/password_reset_email.html'
 
     def form_valid(self, form):
         self.request.session['reset_email'] = form.cleaned_data['email']

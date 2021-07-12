@@ -79,14 +79,16 @@ class ReviewInstanceInline(admin.TabularInline):
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'category', 'date_start', 'is_private', 'participants_number',
-                    'display_enroll_count',  'display_places_left', ]
+                    'display_enroll_count', 'display_places_left', 'count_rate',]  #'count_rate',  'display_enroll_count',
     list_select_related = ['category', ]
     list_display_links = ['id', 'title' ]
     inlines = [ ReviewInstanceInline]
     fields = ['title', 'description', 'date_start', 'participants_number', 'is_private', 'category',
-               'features', 'display_enroll_count', 'display_places_left', 'rate', 'logo', ]
+               'features', 'display_enroll_count', 'display_places_left', 'count_rate', 'logo', ] #'count_rate',
     filter_horizontal = ['features']
-    readonly_fields = ['display_enroll_count', 'display_places_left', 'rate', ]
+    readonly_fields = ['display_enroll_count', 'display_places_left', 'count_rate', ] #'count_rate'
     ordering= ['date_start']
     search_fields = ['title']
     list_filter = [Fullness, 'category', 'features', ]
+
+

@@ -19,12 +19,12 @@
                                 {% if event.is_private %}<span data-test="is_private" class="badge bg-dark">Private
                                 </span>{% endif %}
                                 <h2 data-test="event_title">{{ event.title }}</h2>
-                                <p data-test="event_rate" class="badge bg-warning">{{ event.rate }} / 5</p>
+                                <p data-test="event_rate" class="badge bg-warning">{{ event.count_rate }} / 5</p>
                                 <h5 data-test="event_category" class="mt-3">{{ event.category }}</h5>
                                 <p data-test="event_description" class="my-4">{{ event.description }}</p>
                                 <ul>
-                                    {% for el in event.features_list %}
-                                        <li data-test="feature">{{ el.title }}</li>
+                                    {% for el in event.features.all %}
+                                        <li data-test="feature"> {{ el }}</li>
                                     {% endfor %}
                                 </ul>
                                 <p class="text-black">дата: <strong
@@ -38,14 +38,14 @@
                                         {% csrf_token %}
                                         {{ enroll_form }}
                                         <button
-                                                {% if not user.is_authenticated or available < 1 %}
+                                                {% if not user.is_authenticated or event.available < 1 %}
                                                     disabled
                                                 {% endif %}
                                                     data-test="enroll"
                                                     type="submit"
                                                     class="btn btn-success"
                                         >
-                                            {% if available < 1 %}
+                                            {% if event.available < 1 %}
                                                 Мест нет
                                             {% else %}
                                                 Записаться
@@ -88,10 +88,10 @@
                                     <div class="card-body">
                                         <i class="bi bi-emoji-smile text-success" style="font-size: 3rem"></i>
                                         <h4 data-test="enroll_count">
-                                            {{ event.display_enroll_count }} из {{ event.participants_number }}
+                                            {{ event.enrolls.count|default:"0" }} из {{ event.participants_number }}
                                         </h4>
                                         <p data-test="places_left">
-                                            осталось мест: {% if available > 0 %} {{ available }}
+                                            осталось мест: {% if event.available > 0 %} {{ event.available }}
                                         {% else %} мест нет
                                         {% endif %}
                                         </p>
@@ -155,11 +155,11 @@
                     </div>
                 </div>
 
-                {% for review in reviews %}
+                {% for review in event.reviews.all %}
                     <div class="card my-3">
                         <div class="card-header pb-0">
                             <h5 class="card-title">
-                                {{ review.user }}
+                                {{ review.user.username }}
                                 <span class="badge bg-warning">{{ review.rate }}</span>
                             </h5>
                         </div>

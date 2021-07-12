@@ -1,10 +1,17 @@
+from django.core.paginator import Paginator
+from django.db.models import Prefetch, Count, F
+from django.template.defaultfilters import length
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 import datetime
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpResponseForbidden, Http404, QueryDict
 
-from events.forms import EventCreationForm, EventUpdateForm, EnrollCreationForm, FavoriteCreationForm
+from events.forms import (EventCreationForm,
+                          EventUpdateForm,
+                          EnrollCreationForm,
+                          FavoriteCreationForm,
+                          EventFilterForm)
 from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -27,14 +34,12 @@ class MyLoginRequiredMixin:
         return super().post(request, *args, **kwargs)
 
 
-
 def error(request):
     template_name =  'events/error_message.html'
     context = {
         'title': 'Ошибка'
     }
     return render(request, template_name, context)
-
 
 
 def index(request):
@@ -52,21 +57,83 @@ class EventListView(ListView):
     model = Event
     template_name = 'events/event_list.html' # необязательно, указать, если имя шаблона отличается от стандартного
     context_object_name = 'event_objects'
-    paginate_by = 9
+    paginate_by = 8
+
+# http://127.0.0.1:8000/events/list/?page=2&category=&date_start=&date_end=&is_private=on&is_available=on
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = Category.objects.all()
-        feature = Feature.objects.all()
-        context['event_number'] = Event.objects.count()
-        context['category'] = category
-        context['feature'] = feature
-
+        context['filter_form'] = EventFilterForm(self.request.GET)
         return context
 
     def get_queryset(self):
+
         queryset = super().get_queryset()
+        #queryset = queryset.select_related('category').prefetch_related('enrolls', 'features').with_counts()
+        #queryset = queryset.select_related('category').prefetch_related('enrolls', 'features').all()
+        # queryset = queryset.select_related('category')
+        # queryset = queryset.prefetch_related('enrolls', 'features').with_counts()
+        queryset = queryset.EvQuSet()
+
+
+          # обработка кнопки "Сбросить"
+        if self.request.GET.get('Delete', ''):
+            # удаоить 'filter' в сесии:
+            if 'filter' in self.request.session:
+                del self.request.session['filter']
+                self.request.session.modified = True
+            self.request.GET = QueryDict()#'', mutable=True)
+            return queryset.order_by('-pk')
+
+        # начало обработки запроса GET для запоминариня фильтров
+        # если был переход по стриницам
+        page = self.request.GET.get('page', '')
+
+        if 'filter' in self.request.session:
+            filter_dist = self.request.session['filter']
+            if page:
+                #добавить 'page' к session['filter']
+                filter_dist.update({'page': page})
+            else:
+                if self.request.GET:
+                    # поностью обновить session['filter']
+                    del self.request.session['filter']
+                    self.request.session['filter'] = self.request.GET
+                    self.request.session.modified = True
+                    filter_dist = self.request.GET
+
+            self.request.session['filter'] = filter_dist
+            self.request.session.modified = True
+            self.request.GET = filter_dist
+        else:
+            self.request.session['filter'] = self.request.GET
+            self.request.session.modified = True
+        # конец обработки запроса GET для запоминариня фильтров
+
+        # обработка фильтров
+        filter_category = self.request.GET.get('category', '')
+        filter_features = self.request.GET.get('features', '')
+        filter_date_start = self.request.GET.get('date_start', '')
+        filter_date_end = self.request.GET.get('date_end', '')
+        filter_is_private = self.request.GET.get('is_private', '')
+        filter_is_available = self.request.GET.get('is_available', '')
+
+        if filter_category:
+            queryset = queryset.filter(category=filter_category)
+        if filter_features:
+            for feature in filter_features:
+                queryset = queryset.filter(features__in=feature)
+        if filter_date_start:
+            queryset = queryset.filter(date_start__gt=filter_date_start)
+        if filter_date_end:
+            queryset = queryset.filter(date_start__lt=filter_date_end)
+        if filter_is_private:
+            queryset = queryset.filter(is_private=True)
+        if filter_is_available:
+            queryset = queryset.filter(available__gt=0)
+
         return queryset.order_by('-pk')
+
 
 
 
@@ -97,22 +164,31 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
         event = self.object
         context = super().get_context_data(**kwargs)
 
-        enrolls = self.object.enrolls.all().order_by('user_id')
-        reviews = self.object.reviews.all()
-        context['reviews'] = reviews
 
-        reviewlist = reviews.values('user_id', 'rate').order_by('user_id')
-
-        for el in enrolls:
-            el.review = 0
-            for rev in reviewlist:
-                if el.user.pk == rev['user_id']:
-                    el.review = rev['rate']
-                    break
-
-        context['enrolls'] = enrolls
+        # reviews = self.object.reviews.all()
+        # context['reviews'] = reviews
+        #
+        # reviewlist = reviews.values('user_id', 'rate').order_by('user_id')
+        # enrolls = self.object.enrolls.all().order_by('user_id')
+        # for el in enrolls:
+        #     el.review = 0
+        #     for rev in reviewlist:
+        #         if el.user.pk == rev['user_id']:
+        #             el.review = rev['rate']
+        #             break
+        #
+        # context['enrolls'] = enrolls
 
         return context
+
+    def get_queryset(self):
+
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        queryset = super().get_queryset().filter(pk=pk)
+        #queryset = queryset.select_related('category').prefetch_related('enrolls__user', 'features',
+        #             'reviews__user').with_counts()
+        queryset = queryset.EvQuSet()
+        return queryset #.order_by('reviews__user.user_id')
 
 
 
@@ -185,31 +261,50 @@ class FavoriteCreationView(LoginRequiredMixin, CreateView):
 
 
 
-
-
 class EventDetailView(DetailView):
     model = Event
 
     def get_context_data(self, **kwargs):
-        event = self.object
+        #event = self.object
         #created = datetime.date.today().strftime('%d.%m.%Y')
 
         context = super().get_context_data(**kwargs)
-        context['reviews'] = self.object.reviews.all()
-        context['enroll_form'] = EnrollCreationForm(initial={
+        initial = {
             'user': self.request.user,
             'event': self.object,
             #'created': created,
-        })
-        context['favorite_form'] = FavoriteCreationForm(initial={
-            'user': self.request.user,
-            'event': self.object,
-        })
-        available = self.object.participants_number - self.object.enrolls.count()
-        context['available'] = available
+        }
+
+
+        #context['reviews'] = self.object.get_review
+
+
+
+        context['enroll_form'] = EnrollCreationForm(initial=initial)
+        context['favorite_form'] = FavoriteCreationForm(initial=initial)
+
+        # context['count_rate'] = self.object.count_rate  #(self.object)
+        # context['category'] = self.object.category
+        # context['description'] = self.object.description
+        # context['features'] = self.object.features.all()
+        # available = self.object.participants_number - self.object.enrolls.count()
+        # context['available'] = available
+        # print('context: &&&&&&&&&&&&&&&&&&&')
+        # print(context)
 
         return context
 
+    def get_queryset(self):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        queryset = super().get_queryset().filter(pk=pk)
+        # queryset = queryset.select_related('category').prefetch_related('enrolls', 'features',
+        #             'reviews__user').with_counts()
+        queryset = queryset.EvQuSet()
+
+        #
+        # print('поля: __________________')
+        # print(queryset.values())
+        return queryset
 
 
 @require_POST
