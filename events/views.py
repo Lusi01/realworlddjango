@@ -152,7 +152,7 @@ class EventListView(ListView):
             filter_dist['is_private'] = filter_is_private
 
         if filter_dist.__contains__('is_available'):
-            filter_is_available = self.request.GET.get('is_available')
+            filter_is_available = self.request.GET.get('is_available', '')
             filter_dist['is_available'] = filter_is_available
 
         if page:

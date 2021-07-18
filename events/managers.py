@@ -7,9 +7,9 @@ from django.db.models.functions import Coalesce
 class EventQuerySet(models.QuerySet):
     def with_counts(self):
         return self.annotate(
-            #count=Coalesce(models.Count('enrolls'), 0),
-            #available=models.F('participants_number')-models.F('count'),
-            available=models.F('participants_number') - models.Count('enrolls')
+            count=Coalesce(models.Count('enrolls'), 0),
+            available=models.F('participants_number')-models.F('count'),
+            #available=models.F('participants_number') - models.Count('enrolls')
             #available = models.F('participants_number') - models.display_enroll_count()
         )
 
