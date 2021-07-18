@@ -8,9 +8,10 @@ class EventQuerySet(models.QuerySet):
     def with_counts(self):
         return self.annotate(
             count=Coalesce(models.Count('enrolls'), 0),
-            available=models.F('participants_number')-models.F('count'),
-            #available=models.F('participants_number') - models.Count('enrolls')
-            #available = models.F('participants_number') - models.display_enroll_count()
+            #available=models.F('participants_number') - self.count,
+            #available=models.F('participants_number')-models.F('count'),
+            available=models.F('participants_number') - models.Count('enrolls')
+            #available = models.F('participants_number') - models.Max(display_enroll_count())
         )
 
     def EvQuSet(self):
