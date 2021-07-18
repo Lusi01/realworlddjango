@@ -26,12 +26,26 @@ function getSubscribers(url) {
                 try {
                     // Строка формата JSON содержится в реквизите xhr.response - парсим ее
                     let response = JSON.parse(xhr.response)
+                    let fl_all_email_sent = response.all_email_sent
+
                     updateSubscribers(response.subscribers)
-                    if (response.all_emails_sent === true) {
-                        let alertElement = document.getElementById('alertSendingProcess')
+
+                    let alertElement = document.getElementById('alertSendingProcess')
+                    if (fl_all_email_sent === true) {
                         if (alertElement) {
+                            alertElement.classList.remove('d-none')
+                        }
+
+                        alertElement = document.getElementById('alertSendingDone')
+                        if (alertElement) {
+                             alertElement.classList.add('d-none')
+                        }
+
+                    } else {
+                       if (alertElement) {
                             alertElement.classList.add('d-none')
                         }
+
                         alertElement = document.getElementById('alertSendingDone')
                         if (alertElement) {
                             alertElement.classList.remove('d-none')
@@ -40,6 +54,7 @@ function getSubscribers(url) {
                             clearInterval(timerId)
                         }
                     }
+
                 } catch (err) {
                     // Если не удалось распарсить строку ответа, то выводим ошибку
                     alert(err)
@@ -63,7 +78,7 @@ function updateSubscribers(subscribers) {
 
     for (const subscriber of subscribers) {
         let trArray = document.querySelectorAll("[data-tr-email='" + subscriber.email + "']")
-        for (const tr of trArray ) {
+        for (const tr of trArray) {
             let td = tr.querySelector("[data-td-name='letterCount']")
             if (td) {
                 td.innerText = subscriber.letter_count
@@ -156,9 +171,7 @@ function sendLetters(urlSendLetters, urlGetSubscribers) {
 
             // Если статус ответа = 200, значит все OK. Отправленный HTTP успешно вернул ответ
             if (xhr.status === 200) {
-
                 console.log('Запущена отправка писем')
-
             } else {
                 // Если статус ответа не 200, значит при обработке HTTP возникли какие-то ошибки
                 // Ситуации могут быть разные. Выводим ошибку со статусом ответа

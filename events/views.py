@@ -17,6 +17,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+import json
 
 
 
@@ -71,19 +72,41 @@ class EventListView(ListView):
 
           # обработка кнопки "Сбросить"
         if self.request.GET.get('Delete', ''):
-            # удаоить 'filter' в сесии:
+            filter_dist = self.request.GET.copy()
+            # удалить 'filter' в сесии:
             if 'filter' in self.request.session:
                 del self.request.session['filter']
-                self.request.session.modified = True
-            self.request.GET = QueryDict()
+
+            # удаоить фильтры в запросах GET:
+            if filter_dist.get('date_start'):
+                del filter_dist['date_start']
+            if filter_dist.get('date_end'):
+                del filter_dist['date_end']
+            if filter_dist.get('category'):
+                del filter_dist['category']
+            if filter_dist.get('features'):
+                del filter_dist['features']
+            if filter_dist.get('is_private'):
+                del filter_dist['is_private']
+            if filter_dist.get('is_available'):
+                del filter_dist['is_available']
+            if filter_dist.get('page'):
+                del filter_dist['page']
+            if filter_dist.get('Delete'):
+                del filter_dist['Delete']
+
+            self.request.GET = filter_dist
+
             return queryset.order_by('-pk')
 
         # начало обработки запроса GET для запоминариня фильтров
+        filter_dist = {}
         # если был переход по стриницам
-        page = self.request.GET.get('page', '')
+        page = self.request.GET.get('page', None)
 
         if 'filter' in self.request.session:
             filter_dist = self.request.session['filter']
+
             if page:
                 #добавить 'page' к session['filter']
                 filter_dist.update({'page': page})
@@ -91,25 +114,52 @@ class EventListView(ListView):
                 if self.request.GET:
                     # поностью обновить session['filter']
                     del self.request.session['filter']
-                    self.request.session['filter'] = self.request.GET
-                    self.request.session.modified = True
-                    filter_dist = self.request.GET
+                    filter_dist = self.request.GET.copy()
 
             self.request.session['filter'] = filter_dist
-            self.request.session.modified = True
             self.request.GET = filter_dist
         else:
-            self.request.session['filter'] = self.request.GET
-            self.request.session.modified = True
+            filter_dist = self.request.GET.copy()
         # конец обработки запроса GET для запоминариня фильтров
 
         # обработка фильтров
-        filter_category = self.request.GET.get('category', '')
-        filter_features = self.request.GET.get('features', '')
-        filter_date_start = self.request.GET.get('date_start', '')
-        filter_date_end = self.request.GET.get('date_end', '')
-        filter_is_private = self.request.GET.get('is_private', '')
-        filter_is_available = self.request.GET.get('is_available', '')
+        filter_category = None
+        filter_features = None
+        filter_date_start = None
+        filter_date_end = None
+        filter_is_private = None
+        filter_is_available = None
+
+        if filter_dist.__contains__('category'):
+            filter_category = self.request.GET.get('category')
+            filter_dist['category'] = filter_category
+
+        if filter_dist.__contains__('features'):
+            q = json.loads(json.dumps(dict(filter_dist)))
+            filter_features = q['features']
+            filter_dist['features'] = filter_features
+
+        if filter_dist.__contains__('date_start'):
+            filter_date_start = self.request.GET.get('date_start')
+            filter_dist['date_start'] = filter_date_start
+
+        if filter_dist.__contains__('date_end'):
+            filter_date_end = self.request.GET.get('date_end')
+            filter_dist['date_end'] = filter_date_end
+
+        if filter_dist.__contains__('is_private'):
+            filter_is_private = self.request.GET.get('is_private')
+            filter_dist['is_private'] = filter_is_private
+
+        if filter_dist.__contains__('is_available'):
+            filter_is_available = self.request.GET.get('is_available')
+            filter_dist['is_available'] = filter_is_available
+
+        if page:
+            filter_dist['page'] = page
+
+        self.request.session['filter'] = filter_dist
+
 
         if filter_category:
             queryset = queryset.filter(category=filter_category)
@@ -238,32 +288,15 @@ class EventDetailView(DetailView):
     model = Event
 
     def get_context_data(self, **kwargs):
-        #event = self.object
-        #created = datetime.date.today().strftime('%d.%m.%Y')
 
         context = super().get_context_data(**kwargs)
         initial = {
             'user': self.request.user,
             'event': self.object,
-            #'created': created,
         }
-
-
-        #context['reviews'] = self.object.get_review
-
-
 
         context['enroll_form'] = EnrollCreationForm(initial=initial)
         context['favorite_form'] = FavoriteCreationForm(initial=initial)
-
-        # context['count_rate'] = self.object.count_rate  #(self.object)
-        # context['category'] = self.object.category
-        # context['description'] = self.object.description
-        # context['features'] = self.object.features.all()
-        # available = self.object.participants_number - self.object.enrolls.count()
-        # context['available'] = available
-        # print('context: &&&&&&&&&&&&&&&&&&&')
-        # print(context)
 
         return context
 

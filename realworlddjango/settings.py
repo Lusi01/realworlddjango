@@ -47,11 +47,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 # EMAIL_USE_TLS = True
 # EMAIL_USE_SSL = False
+
 #
 # SITE_ID = 1
 #
 # ACCOUNT_EMAIL_REQUIRED = True
 # ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+
+
+
 
 # Application definition
 INSTALLED_APPS = [

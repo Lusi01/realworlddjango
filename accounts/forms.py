@@ -20,7 +20,6 @@ class ProfileUpdateForm(forms.ModelForm):
         fields = ('avatar', 'phone')
 
     def __init__(self, *args, **kwargs):
-        print('kwargs=', kwargs)
         super().__init__(*args, **kwargs)
         update_fields_widget(self, ('phone',), 'form-control')
 

@@ -33,10 +33,11 @@ class EventFilterForm(forms.Form):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'special'})
 
-        self.fields['category'].widget.attrs.update({'class': 'form-control',})
-        self.fields['features'].widget.attrs.update({'class': 'form-control', 'multiple': True})
-        self.fields['date_start'].widget.attrs.update({'class': 'form-control mx-1 ',})
-        self.fields['date_end'].widget.attrs.update({'class': 'form-control mx-1 '})
+        self.fields['category'].widget.attrs.update({'class': 'form-control', 'selected': "selected", 'initial': self.fields['category'] })
+        self.fields['features'].widget.attrs.update({'class': 'form-control', 'multiple': True, 'selected':
+            "selected", 'initial': self.fields['features'] })
+        self.fields['date_start'].widget.attrs.update({'class': 'form-control mx-1'})
+        self.fields['date_end'].widget.attrs.update({'class': 'form-control mx-1'})
         self.fields['is_private'].widget.attrs.update({'class': 'form-check', 'default': False })
         self.fields['is_available'].widget.attrs.update({'class': 'form-check ', 'default': False})
 

@@ -13,15 +13,16 @@
                         <form action="." method="get">
                             <div class="row row-cols-lg-auto g-3 align-items-start">
                                 {% for field in filter_form %}
+
                                     {% if field.name != 'is_private' and field.name != 'is_available' %}
                                         <div class="col-12" style="display: grid; width: 23%">
                                             <label for="id_{{ field.name }}">{{ field.label }}</label>
                                             {{ field }}
                                         </div>
-                                    {% endif %}
+{#                                    {% endif %}#}
 
 
-                                    {% if field.name == 'is_private' or field.name == 'is_available' %}
+                                    {% elif field.name == 'is_private' or field.name == 'is_available' %}
                                         <div class="col-12 d-md-flex" style="display: flex; width: 13%; ">
                                             <label for="id_{{ field.name }}" style="margin-right: .5rem"
                                             >{{ field.label }}</label>
