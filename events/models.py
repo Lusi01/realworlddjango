@@ -48,6 +48,9 @@ class Event(models.Model):
     logo = models.ImageField(upload_to='events/list', blank=True, null=True, verbose_name='Загрузить изображение')
     objects = EventQuerySet.as_manager()
 
+
+
+
     @property
     def logo_url(self):
         return self.logo.url if self.logo else f'{settings.STATIC_URL}images/svg-icon/event.svg'

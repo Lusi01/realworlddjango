@@ -15,7 +15,7 @@ from events.forms import (EventCreationForm,
 from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 
@@ -72,27 +72,29 @@ class EventListView(ListView):
 
           # обработка кнопки "Сбросить"
         if self.request.GET.get('Delete', ''):
+            # self.request.build_absolute_uri('/events/list/')
+            # return queryset.order_by('-pk')
             filter_dist = self.request.GET.copy()
             # удалить 'filter' в сесии:
             if 'filter' in self.request.session:
                 del self.request.session['filter']
 
             # удаоить фильтры в запросах GET:
-            if filter_dist.get('date_start'):
+            if 'date_start' in filter_dist:
                 del filter_dist['date_start']
-            if filter_dist.get('date_end'):
+            if 'date_end' in filter_dist:
                 del filter_dist['date_end']
-            if filter_dist.get('category'):
+            if 'category' in filter_dist:
                 del filter_dist['category']
-            if filter_dist.get('features'):
+            if 'features' in filter_dist:
                 del filter_dist['features']
-            if filter_dist.get('is_private'):
+            if 'is_private' in filter_dist:
                 del filter_dist['is_private']
-            if filter_dist.get('is_available'):
+            if 'is_available' in filter_dist:
                 del filter_dist['is_available']
-            if filter_dist.get('page'):
+            if 'page' in filter_dist:
                 del filter_dist['page']
-            if filter_dist.get('Delete'):
+            if 'Delete' in filter_dist:
                 del filter_dist['Delete']
 
             self.request.GET = filter_dist
@@ -116,50 +118,56 @@ class EventListView(ListView):
                     del self.request.session['filter']
                     filter_dist = self.request.GET.copy()
 
-            self.request.session['filter'] = filter_dist
-            self.request.GET = filter_dist
+            if len(filter_dist) > 0:
+                self.request.session['filter'] = filter_dist
+                self.request.GET = filter_dist
         else:
             filter_dist = self.request.GET.copy()
         # конец обработки запроса GET для запоминариня фильтров
 
         # обработка фильтров
-        filter_category = None
-        filter_features = None
-        filter_date_start = None
-        filter_date_end = None
-        filter_is_private = None
-        filter_is_available = None
-
         if filter_dist.__contains__('category'):
-            filter_category = self.request.GET.get('category')
+            filter_category = self.request.GET.get('category', '')
             filter_dist['category'] = filter_category
+        else:
+            filter_category = None
 
         if filter_dist.__contains__('features'):
             q = json.loads(json.dumps(dict(filter_dist)))
             filter_features = q['features']
             filter_dist['features'] = filter_features
+        else:
+            filter_features = None
 
         if filter_dist.__contains__('date_start'):
-            filter_date_start = self.request.GET.get('date_start')
+            filter_date_start = self.request.GET.get('date_start', '')
             filter_dist['date_start'] = filter_date_start
+        else:
+            filter_date_start = None
 
         if filter_dist.__contains__('date_end'):
-            filter_date_end = self.request.GET.get('date_end')
+            filter_date_end = self.request.GET.get('date_end', '')
             filter_dist['date_end'] = filter_date_end
+        else:
+            filter_date_end = None
 
         if filter_dist.__contains__('is_private'):
-            filter_is_private = self.request.GET.get('is_private')
+            filter_is_private = self.request.GET.get('is_private', '')
             filter_dist['is_private'] = filter_is_private
+        else:
+            filter_is_private = None
 
         if filter_dist.__contains__('is_available'):
             filter_is_available = self.request.GET.get('is_available', '')
             filter_dist['is_available'] = filter_is_available
+        else:
+            filter_is_available = None
 
         if page:
             filter_dist['page'] = page
 
-        self.request.session['filter'] = filter_dist
-
+        if len(filter_dist) > 0:
+            self.request.session['filter'] = filter_dist
 
         if filter_category:
             queryset = queryset.filter(category=filter_category)

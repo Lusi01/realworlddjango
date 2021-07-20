@@ -76,6 +76,8 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount',
     # 'allauth.socialaccount.providers.github',
 
+    #'query_parameters',  #не годится!
+
     'debug_toolbar',
 
     # project apps
@@ -165,6 +167,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+FAVORITE_FILTER_CHOICES = []
 
 
 # Static files (CSS, JavaScript, Images)

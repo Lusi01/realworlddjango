@@ -3,6 +3,7 @@ from events.models import Event, Enroll, Favorite, Category, Feature
 
 
 class EventFilterForm(forms.Form):
+
     category = forms.ModelChoiceField(
                     label='Категория',
                     queryset=Category.objects.all(),
@@ -10,7 +11,7 @@ class EventFilterForm(forms.Form):
     features = forms.ModelMultipleChoiceField(
                     label='Свойства',
                     queryset=Feature.objects.all(),
-                    required=False)
+                    required=False,)
     date_start = forms.DateTimeField(
                     label='Дата начала',
                     widget=forms.DateInput(format="%Y-%m-%d", attrs={'type': 'date'}),
@@ -28,19 +29,20 @@ class EventFilterForm(forms.Form):
                     widget=forms.CheckboxInput(attrs={'type': 'checkbox'}),
                     required=False)
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'special'})
 
-        self.fields['category'].widget.attrs.update({'class': 'form-control', 'selected': "selected", 'initial': self.fields['category'] })
+        self.fields['category'].widget.attrs.update(
+            {'class': 'form-control', 'selected': "selected", 'initial': self.fields['category']})
         self.fields['features'].widget.attrs.update({'class': 'form-control', 'multiple': True, 'selected':
-            "selected", 'initial': self.fields['features'] })
+            "selected", 'initial': self.fields['features']})
         self.fields['date_start'].widget.attrs.update({'class': 'form-control mx-1'})
         self.fields['date_end'].widget.attrs.update({'class': 'form-control mx-1'})
-        self.fields['is_private'].widget.attrs.update({'class': 'form-check', 'default': False })
+        self.fields['is_private'].widget.attrs.update({'class': 'form-check', 'default': False})
         self.fields['is_available'].widget.attrs.update({'class': 'form-check ', 'default': False})
-
 
 
 
