@@ -4,7 +4,6 @@
 <!-- Start MAIN_CONTAINER -->
 {% block content %}
 
-
     <!-- Start CONTAINER_BAR -->
     <div class="container-fluid mt-3">
         <div class="row mb-4">
@@ -15,29 +14,6 @@
                             <div class="row row-cols-lg-auto g-3 align-items-start">
                                 {% for field in filter_form %}
 
-{#                                    {% if field.name == 'features' %}#}
-{##}
-{#                                        <div class="col-12" style="display: grid; width: 23%">#}
-{#                                        <label for="id_{{ field.name }}">{{ field.label }}</label>#}
-{#                                        {{ field }}#}
-{#                                        <select class="form-control" name="features" id="id_features" multiple>#}
-{#                                            {% for f  in field %}#}
-{#                                                {{ f.as_p }}#}
-{##}
-{#{% if f.name == '1' %}#}
-{#                                                <option selected style="color:red" {{ f }} ></option>#}
-{#    {% else %}#}
-{#                                                <option {{ f }} ></option>#}
-{##}
-{#                                                {% endif %}#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{##}
-{##}
-{#                                            {% if field.attributes.selected %} {{ field }}#}
-{#                                             {% endif %}#}
-{#                                        </div>#}
-{#                                    {% endif %}#}
                                         {% if field.name != 'is_private' and field.name != 'is_available' %}
                                         <div class="col-12" style="display: grid; width: 23%">
                                             <label for="id_{{ field.name }}">{{ field.label }}</label>

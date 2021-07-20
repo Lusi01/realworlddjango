@@ -15,7 +15,7 @@ from events.forms import (EventCreationForm,
 from events.models import Category, Event, Feature, Review, Enroll, Favorite
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from django.urls import reverse_lazy, path
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 
@@ -72,8 +72,6 @@ class EventListView(ListView):
 
           # обработка кнопки "Сбросить"
         if self.request.GET.get('Delete', ''):
-            # self.request.build_absolute_uri('/events/list/')
-            # return queryset.order_by('-pk')
             filter_dist = self.request.GET.copy()
             # удалить 'filter' в сесии:
             if 'filter' in self.request.session:
