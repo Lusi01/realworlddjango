@@ -56,3 +56,12 @@ class Letter(models.Model):
         return new_letters
 
 
+    # @staticmethod
+    # def update_letter(id, email, subject, text):
+    # #to = Subscriber.objects.filter(email__iexact=email).first()
+    #     to = Subscriber.get_by_email(email)
+    #     is_sent = True
+    #     if to:
+    #         Letter.objects.update(id=id, to=to, subject=subject, text=text, is_sent=is_sent)
+    #     return new_letters
+

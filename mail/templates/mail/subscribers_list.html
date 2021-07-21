@@ -72,8 +72,8 @@
         function readySubscribers() {
 
             const urlCreateLetters = "{% url 'api_mail:create_letters' %}"
-            const urlSendLetters = ""
-            const urlGetLetters = ""
+            const urlSendLetters = "{% url 'api_mail:send_letters' %}"
+            const urlGetSubscribers = "{% url 'api_mail:get_subscribers' %}"
 
             let btnCreateLetters = document.getElementById('btnCreateLetters')
             if (btnCreateLetters) {
@@ -85,7 +85,7 @@
             let btnSendLetters = document.getElementById('btnSendLetters')
             if (btnSendLetters) {
                 btnSendLetters.onclick = () => {
-                    sendLetters(urlSendLetters, urlGetLetters)
+                    sendLetters(urlSendLetters, urlGetSubscribers)
                 }
             }
 
