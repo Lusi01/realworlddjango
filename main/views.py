@@ -13,6 +13,7 @@ class IndexView(TemplateView):
         context['review_list'] = Review.objects.select_related('event').all().order_by('-id')[:3]
         context['event_list'] = Event.objects.all().order_by('-pk')[:3]
         context['special_content'] = True
+
         return context
 
 
