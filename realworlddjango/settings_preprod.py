@@ -1,3 +1,4 @@
+import django_heroku
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -5,19 +6,7 @@ from .settings_base import *
 
 DEBUG = False
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': '',
-    }
-}
-
+django_heroku.settings(locals())
 
 sentry_sdk.init(
     dsn= env('SENTRY_SDK_DSN'),
@@ -39,4 +28,4 @@ sentry_sdk.init(
     # release="myapp@1.0.0",
 )
 
-STATIC_ROOT = BASE_DIR / 'static'
+
