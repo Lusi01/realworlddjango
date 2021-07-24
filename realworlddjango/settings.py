@@ -4,6 +4,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from .settings_base import *
 
 DEBUG = False
+ALLOWED_HOSTS = ['192.168.1.34', 'localhost']
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -39,4 +40,4 @@ sentry_sdk.init(
     # release="myapp@1.0.0",
 )
 
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
